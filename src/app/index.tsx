@@ -1,11 +1,10 @@
-import React from 'react';
-import { View, Text, TouchableOpacity} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
-import { Leaf, Refrigerator, TrendingDown } from 'lucide-react-native';
-import { FeatureItem } from '../components/FeatureItem'; 
-import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Leaf, Refrigerator, TrendingDown } from "lucide-react-native";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { FeatureItem } from "../components/FeatureItem";
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -15,7 +14,6 @@ export default function OnboardingScreen() {
       {/*StatusBar with dark style to contrast with the light background*/}
       <StatusBar style="dark" hidden={false} />
       <View className="flex-1 flex-col items-center justify-center px-6 pt-12 pb-6">
-        
         {/* Logo */}
         <View className="w-20 h-20 bg-emerald-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30">
           <Refrigerator color="white" size={40} />
@@ -26,43 +24,45 @@ export default function OnboardingScreen() {
           FoodSync
         </Text>
         <Text className="text-xl text-gray-500 text-center mb-10">
-          Smart Fridge & Grocery Management
+          Gestión inteligente de neveras y compras
         </Text>
 
         {/* FeatureItem is a component for displaying features */}
         <View className="w-full max-w-sm mb-8 gap-y-6">
-          <FeatureItem 
+          <FeatureItem
             icon={<TrendingDown color="#10B981" size={30} />}
-            title="Reduce Food Waste"
-            description="Track expiration dates and get alerts before food spoils"
+            title="Reduce el desperdicio alimentario"
+            description="Controla las fechas de caducidad y recibe alertas antes de que los alimentos se echen a perder"
           />
-          <FeatureItem 
+          <FeatureItem
             icon={<Refrigerator color="#10B981" size={30} />}
-            title="Smart Inventory"
-            description="Scan receipts to automatically add items to your fridge"
+            title="Inventario Inteligente"
+            description="Escanea recibos para añadir automáticamente los alimentos en tu nevera"
           />
-          <FeatureItem 
+          <FeatureItem
             icon={<Leaf color="#10B981" size={30} />}
-            title="Shared Households"
-            description="Manage groceries together and split expenses with family"
+            title="Hogares compartidos"
+            description="Gestionad juntos vuestras compras y dividid vuestros gastos "
           />
         </View>
       </View>
 
       {/* CTA Buttons for Sign Up and Log In */}
       <View className="px-6 pb-8 gap-y-3 items-center justify-center">
-        <TouchableOpacity 
+        <TouchableOpacity
           className="w-96 h-12 rounded-full bg-emerald-500 flex items-center justify-center active:bg-emerald-600"
-          onPress={() => router.push('/(auth)/register')}
+          onPress={() => router.push("/(auth)/register")}
         >
-          <Text className="text-white text-lg font-semibold">Get Started</Text>
+          <Text className="text-white text-lg font-semibold">Crear cuenta</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           className="w-96 h-12 rounded-full border-2 border-gray-200 flex items-center justify-center active:bg-gray-50"
-          onPress={() => router.push('/(auth)/login')}
+          onPress={() => router.push("/(auth)/login")}
         >
-          <Text className="text-gray-900 text-lg font-semibold">Log In</Text>
+          <Text className="text-gray-900 text-lg font-semibold">
+            Iniciar sesión
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
