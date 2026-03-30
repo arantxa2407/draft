@@ -1,4 +1,5 @@
-import { AlertCircle, Bell, Camera, ChevronRight, Plus, ScanBarcode } from "lucide-react-native";
+import { router } from "expo-router";
+import { AlertCircle, Bell, Camera, ChevronRight, LogOut, Plus, ScanBarcode } from "lucide-react-native";
 import React from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -22,6 +23,10 @@ const expiringItems = [
 ];
 
 export default function Dashboard() {
+  const handleLogout = () => {
+    router.replace("/");
+  };
+
   return (
     <View className="flex-1 bg-white">
       {/* Header */}
@@ -30,10 +35,22 @@ export default function Dashboard() {
           <Text className="text-2xl font-bold text-gray-900">Mi nevera</Text>
           <Text className="text-sm text-gray-500 font-medium">Miércoles, 1 Abril</Text>
         </View>
-        <TouchableOpacity className="w-12 h-12 rounded-2xl bg-gray-50 items-center justify-center border border-gray-100">
-          <Bell size={24} color="#1F2937" />
-          <View className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
-        </TouchableOpacity>
+        
+        <View className="flex-row items-center gap-3">
+          {/* Botón de Cerrar Sesión */}
+          <TouchableOpacity 
+            onPress={handleLogout}
+            className="flex-row items-center gap-1.5 px-3 py-2.5 bg-red-50 rounded-xl border border-red-100"
+          >
+            <LogOut size={16} color="#DC2626" />
+            <Text className="text-red-600 font-bold text-xs">Cerrar sesión</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity className="w-12 h-12 rounded-2xl bg-gray-50 items-center justify-center border border-gray-100">
+            <Bell size={24} color="#1F2937" />
+            <View className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
@@ -70,7 +87,7 @@ export default function Dashboard() {
         </View>
 
         {/* Expiring Soon */}
-        <View className="px-6 mt-8">
+        <View className="px-6 mt-8 mb-8">
           <View className="flex-row justify-between items-center mb-4">
             <View className="flex-row items-center gap-2">
               <AlertCircle size={20} color="#F59E0B" />
