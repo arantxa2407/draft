@@ -65,8 +65,10 @@ export default function RegisterScreen() {
     return emailRegex.test(trimmedEmail);
   };
 
-  const handleEmailBlur = () => {
-    if (!isValidEmail(email)) {
+  const handleEmailEndEditing = (text: string) => {
+    if (text.trim() === "") return;
+
+    if (!isValidEmail(text)) {
       setEmailError("Correo no válido");
     } else {
       setEmailError("");
@@ -149,9 +151,7 @@ export default function RegisterScreen() {
       setPasswordError("");
     }
 
-    // 4. Validar Confirmar Contraseña
-    setConfirmPasswordStarted(true); // 🔥 OBLIGA a mostrar el error de coincidencia
-    // Aseguramos que no estén vacías y que coincidan
+    setConfirmPasswordStarted(true);
     const passwordsMatch = password === confirmPassword && password.length > 0;
     if (!passwordsMatch) {
       setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
@@ -174,7 +174,6 @@ export default function RegisterScreen() {
 
   const PasswordItem = ({ isValid, text }: PasswordItemProps) => {
     const Icon = isValid ? Check : CircleAlert;
-    // En React Native, los SVG necesitan colores HEX en la prop "color"
     const iconColor = isValid ? "#22c55e" : "#ef4444";
     const textColor = isValid ? "#1eb455" : "#ef4444";
 
@@ -227,11 +226,13 @@ export default function RegisterScreen() {
                 value={name}
                 onChangeText={(text) => {
                   setName(text);
-                  if (nameError) setNameError(""); // Limpia el error al escribir
+                  if (nameError) setNameError("");
                 }}
                 onBlur={handleNameBlur}
                 placeholder="John Doe"
                 placeholderTextColor="#9CA3AF"
+                autoCapitalize="words"
+                textContentType="name"
                 className="h-14 px-4 rounded-2xl bg-gray-100 text-base "
               />
               {/* Muestra el error del nombre si existe */}
@@ -248,8 +249,11 @@ export default function RegisterScreen() {
               <Text className="font-medium text-gray-900">Correo</Text>
               <TextInput
                 value={email}
-                onChangeText={setEmail}
-                onBlur={handleEmailBlur}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (emailError && isValidEmail(text)) setEmailError("");
+                }}
+                onEndEditing={(e) => handleEmailEndEditing(e.nativeEvent.text)}
                 placeholder="correo@email.com"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
@@ -348,7 +352,6 @@ export default function RegisterScreen() {
                     if (!confirmPasswordStarted)
                       setConfirmPasswordStarted(true);
 
-                    // Validación en tiempo real
                     if (text !== password) {
                       setConfirmPasswordError("Las contraseñas no coinciden");
                     } else {
