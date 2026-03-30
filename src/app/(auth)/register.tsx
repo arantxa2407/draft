@@ -7,26 +7,45 @@ import {
   EyeOff,
 } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
+  const [nameError, setNameError] = useState("");
+
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
+
+  const [password, setPassword] = useState("");
   const [passwordStarted, setPasswordStarted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordStarted, setConfirmPasswordStarted] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  /*
+  function that controls if the name is in the correct format:
+- between 2 and 16 characters
+- no spaces at the beginning or end
+  */
+
+  const isValidName = (name: string) => {
+    const trimmedName = name.trim();
+    return trimmedName.length >= 2 && trimmedName.length <= 16;
+  };
+
+  const handleNameBlur = () => {
+    if (!isValidName(name)) {
+      setNameError("El nombre debe tener entre 2 y 16 caracteres");
+    } else {
+      setNameError("");
+    }
+  };
+
   /*
   function that controls if the email is in the correct format:
   - not longer than 128 characters
@@ -54,13 +73,12 @@ export default function RegisterScreen() {
     }
   };
 
-  /*function that controls if the password is at least 6 characters and not longest than 32 characters long and has at least one number, one special character, one uppercase letter and one lowercase letter
-  Validaciones individuales
-  const hasLength = (pass: string) => pass.length >= 6 && pass.length <= 32;
-  const hasUpper = (pass: string) => /[A-Z]/.test(pass);
-  const hasLower = (pass: string) => /[a-z]/.test(pass);
-  const hasNumber = (pass: string) => /\d/.test(pass);
-  const hasSpecial = (pass: string) => /[!@#$%^&*()-+]/.test(pass);
+  /*function that controls if the password is in the correct format:
+- between 6 and 32 characters
+- at least one uppercase letter
+- at least one lowercase letter
+- at least one number 
+- at least one special character (!@#$%^&*()-+)
   */
 
   const getPasswordChecks = (password: string) => {
@@ -104,16 +122,45 @@ export default function RegisterScreen() {
   const checks = getPasswordChecks(password);
 
   const handleRegister = () => {
-    // Aquí iría tu lógica de conexión a la API (Axios)
-    const emailValid = isValidEmail(email);
-    const passwordErrorMsg = validatePassword(password);
-    const passwordsMatch = password === confirmPassword;
+    let isValid = true;
 
-    if (!emailValid) {
-      setEmailError("Correo no válido");
+    const nameValid = isValidName(name);
+    if (!nameValid) {
+      setNameError("El nombre debe tener entre 2 y 16 caracteres");
+      isValid = false;
+    } else {
+      setNameError("");
     }
 
-    if (emailValid && !passwordErrorMsg && passwordsMatch) {
+    const emailValid = isValidEmail(email);
+    if (!emailValid) {
+      setEmailError("Correo no válido");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    const passwordErrorMsg = validatePassword(password);
+    setPasswordStarted(true);
+    if (passwordErrorMsg) {
+      setPasswordError(passwordErrorMsg);
+      isValid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    // 4. Validar Confirmar Contraseña
+    setConfirmPasswordStarted(true); // 🔥 OBLIGA a mostrar el error de coincidencia
+    // Aseguramos que no estén vacías y que coincidan
+    const passwordsMatch = password === confirmPassword && password.length > 0;
+    if (!passwordsMatch) {
+      setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
+      isValid = false;
+    } else {
+      setConfirmPasswordError("");
+    }
+
+    if (isValid) {
       router.replace("/(tabs)/dashboard");
     } else {
       alert("Por favor, corrige los errores antes de registrarte.");
@@ -146,228 +193,233 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
-      <KeyboardAvoidingView className="flex-1">
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* Cabecera con Botón de Atrás */}
-          <View className="px-4 pt-6 pb-4">
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={40}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Cabecera con Botón de Atrás */}
+        <View className="px-4 pt-6 pb-4">
+          <TouchableOpacity
+            className="w-10 h-10 rounded-xl flex items-center justify-center active:bg-gray-200"
+            onPress={() => router.back()}
+          >
+            <ArrowLeft color="#1F2937" size={24} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Contenido Principal */}
+        <View className="flex-1 px-6 pt-4">
+          <Text className="text-3xl font-bold mb-2 text-gray-900">
+            Crear una cuenta
+          </Text>
+          <Text className="text-gray-500 mb-8">
+            Comienza a reducir el desperdicio de alimentos hoy
+          </Text>
+
+          <View className="space-y-5">
+            {/* Input: Full Name */}
+            <View className="space-y-2">
+              <Text className="font-medium text-gray-900">Nombre completo</Text>
+              <TextInput
+                value={name}
+                onChangeText={(text) => {
+                  setName(text);
+                  if (nameError) setNameError(""); // Limpia el error al escribir
+                }}
+                onBlur={handleNameBlur}
+                placeholder="John Doe"
+                placeholderTextColor="#9CA3AF"
+                className="h-14 px-4 rounded-2xl bg-gray-100 text-base "
+              />
+              {/* Muestra el error del nombre si existe */}
+              {nameError ? (
+                <View className="flex-row gap-2 items-center">
+                  <CircleAlert color="#ef4444" size={16} />
+                  <Text className="text-red-500 text-sm">{nameError}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            {/* Input: Email */}
+            <View className="space-y-2 mt-4">
+              <Text className="font-medium text-gray-900">Correo</Text>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                onBlur={handleEmailBlur}
+                placeholder="correo@email.com"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+                autoComplete="email"
+                importantForAutofill="yes"
+                className="h-14 px-4 rounded-2xl bg-gray-100 text-base"
+              />
+              {emailError ? (
+                <View className="flex-row gap-2 items-center">
+                  <CircleAlert color="#ef4444" size={16} />
+                  <Text className="text-red-500 text-sm">{emailError}</Text>
+                </View>
+              ) : null}
+            </View>
+
+            {/* Input: Password */}
+            <View className="space-y-2 mt-4">
+              <Text className="font-medium text-gray-900">Contraseña</Text>
+              {/* Contenedor relativo para alojar el botón del ojo */}
+              <View className="justify-center align-middle">
+                <TextInput
+                  ref={passwordInputRef}
+                  value={password}
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    if (!passwordStarted) setPasswordStarted(true);
+                  }}
+                  placeholder="Crea una contraseña"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={{
+                    lineHeight: 16,
+                    fontSize: 14,
+                    textAlignVertical: "center",
+                  }}
+                  className="h-14 pl-4 pr-12 rounded-2xl bg-gray-100 text-base leading-5"
+                />
+
+                {/* Botón del ojito */}
+                <TouchableOpacity
+                  className="absolute right-4"
+                  onPress={() => {
+                    setShowPassword(!showPassword);
+                    passwordInputRef.current?.focus();
+                  }}
+                >
+                  {showPassword ? (
+                    <EyeOff color="#9CA3AF" size={24} />
+                  ) : (
+                    <Eye color="#9CA3AF" size={24} />
+                  )}
+                </TouchableOpacity>
+              </View>
+              {/* Checklist de requisitos */}
+              {passwordStarted && (
+                <View className="mt-2 space-y-1">
+                  <PasswordItem
+                    isValid={checks.length}
+                    text="Debe tener entre 6 y 32 caracteres"
+                  />
+                  <PasswordItem
+                    isValid={checks.upper}
+                    text="Al menos una letra mayúscula"
+                  />
+                  <PasswordItem
+                    isValid={checks.lower}
+                    text="Al menos una letra minúscula"
+                  />
+                  <PasswordItem
+                    isValid={checks.number}
+                    text="Al menos un número"
+                  />
+                  <PasswordItem
+                    isValid={checks.special}
+                    text="Al menos un caracter especial (!@#$%^&*()-+)"
+                  />
+                </View>
+              )}
+            </View>
+
+            <View className="space-y-2 mt-4">
+              <Text className="font-medium text-gray-900">
+                Confirma tu contraseña
+              </Text>
+              <View className="justify-center align-middle">
+                <TextInput
+                  ref={confirmPasswordInputRef}
+                  value={confirmPassword}
+                  onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    if (!confirmPasswordStarted)
+                      setConfirmPasswordStarted(true);
+
+                    // Validación en tiempo real
+                    if (text !== password) {
+                      setConfirmPasswordError("Las contraseñas no coinciden");
+                    } else {
+                      setConfirmPasswordError("");
+                    }
+                  }}
+                  placeholder="Repite tu contraseña"
+                  placeholderTextColor="#9CA3AF"
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={{
+                    lineHeight: 16,
+                    fontSize: 14,
+                    textAlignVertical: "center",
+                  }}
+                  className="h-14 pl-4 pr-12 rounded-2xl bg-gray-100 text-base leading-5"
+                />
+                <TouchableOpacity
+                  className="absolute right-4"
+                  onPress={() => {
+                    setShowConfirmPassword(!showConfirmPassword);
+                    confirmPasswordInputRef.current?.focus();
+                  }}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff color="#9CA3AF" size={24} />
+                  ) : (
+                    <Eye color="#9CA3AF" size={24} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+            {/* Checklist de requisitos */}
+            {confirmPasswordStarted && confirmPasswordError ? (
+              <View className="mt-2 space-y-1">
+                <View className="flex-row items-center gap-2">
+                  <CircleAlert color="#ef4444" size={16} />
+                  <Text className="text-red-500 text-sm">
+                    {confirmPasswordError}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            <Text className="text-xs text-gray-500 pt-2 mt-2">
+              Al registrarte, aceptas nuestros Términos de Servicio y Política
+              de Privacidad
+            </Text>
+
+            {/* Botón de Registro */}
             <TouchableOpacity
-              className="w-10 h-10 rounded-xl flex items-center justify-center active:bg-gray-200"
-              onPress={() => router.back()}
+              className="w-full h-12 bg-emerald-500 rounded-xl flex items-center justify-center mt-6 active:bg-emerald-600"
+              onPress={handleRegister}
             >
-              <ArrowLeft color="#1F2937" size={24} />
+              <Text className="text-white text-base font-semibold">
+                Crear una cuenta
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Contenido Principal */}
-          <View className="flex-1 px-6 pt-4">
-            <Text className="text-3xl font-bold mb-2 text-gray-900">
-              Crear una cuenta
-            </Text>
-            <Text className="text-gray-500 mb-8">
-              Comienza a reducir el desperdicio de alimentos hoy
-            </Text>
-
-            <View className="space-y-5">
-              {/* Input: Full Name */}
-              <View className="space-y-2">
-                <Text className="font-medium text-gray-900">
-                  Nombre completo
-                </Text>
-                <TextInput
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="John Doe"
-                  placeholderTextColor="#9CA3AF"
-                  className="h-14 px-4 rounded-2xl bg-gray-100 text-base "
-                />
-              </View>
-
-              {/* Input: Email */}
-              <View className="space-y-2 mt-4">
-                <Text className="font-medium text-gray-900">Correo</Text>
-                <TextInput
-                  value={email}
-                  onChangeText={setEmail}
-                  onBlur={handleEmailBlur}
-                  placeholder="correo@email.com"
-                  placeholderTextColor="#9CA3AF"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="emailAddress"
-                  autoComplete="email"
-                  importantForAutofill="yes"
-                  className="h-14 px-4 rounded-2xl bg-gray-100 text-base"
-                />
-                {emailError ? (
-                  <View className="flex-row gap-2 items-center">
-                    <CircleAlert className="text-red-500" size={16} />
-                    <Text className="text-red-500">{emailError}</Text>
-                  </View>
-                ) : null}
-              </View>
-
-              {/* Input: Password */}
-              <View className="space-y-2 mt-4">
-                <Text className="font-medium text-gray-900">Contraseña</Text>
-                {/* Contenedor relativo para alojar el botón del ojo */}
-                <View className="justify-center align-middle">
-                  <TextInput
-                    ref={passwordInputRef}
-                    value={password}
-                    onChangeText={(text) => {
-                      setPassword(text);
-                      if (!passwordStarted) setPasswordStarted(true);
-                    }}
-                    placeholder="Crea una contraseña"
-                    placeholderTextColor="#9CA3AF"
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    style={{
-                      lineHeight: 16,
-                      fontSize: 14,
-                      textAlignVertical: "center",
-                    }}
-                    textContentType="newPassword"
-                    autoComplete="new-password"
-                    importantForAutofill="yes"
-                    passwordRules="required: upper; required: lower; required: digit; required: special; minlength: 6; maxlength: 32;"
-                    className="h-14 pl-4 pr-12 rounded-2xl bg-gray-100 text-base leading-5"
-                  />
-
-                  {/* Botón del ojito */}
-                  <TouchableOpacity
-                    className="absolute right-4"
-                    onPress={() => {
-                      setShowPassword(!showPassword);
-                      passwordInputRef.current?.focus();
-                    }}
-                  >
-                    {showPassword ? (
-                      <EyeOff color="#9CA3AF" size={24} />
-                    ) : (
-                      <Eye color="#9CA3AF" size={24} />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {/* Checklist de requisitos */}
-                {passwordStarted && (
-                  <View className="mt-2 space-y-1">
-                    <PasswordItem
-                      isValid={checks.length}
-                      text="Debe tener entre 6 y 32 caracteres"
-                    />
-                    <PasswordItem
-                      isValid={checks.upper}
-                      text="Al menos una letra mayúscula"
-                    />
-                    <PasswordItem
-                      isValid={checks.lower}
-                      text="Al menos una letra minúscula"
-                    />
-                    <PasswordItem
-                      isValid={checks.number}
-                      text="Al menos un número"
-                    />
-                    <PasswordItem
-                      isValid={checks.special}
-                      text="Al menos un caracter especial (!@#$%^&*()-+)"
-                    />
-                  </View>
-                )}
-              </View>
-
-              <View className="space-y-2 mt-4">
-                <Text className="font-medium text-gray-900">
-                  Confirma tu contraseña
-                </Text>
-                <View className="justify-center align-middle">
-                  <TextInput
-                    ref={confirmPasswordInputRef}
-                    value={confirmPassword}
-                    onChangeText={(text) => {
-                      setConfirmPassword(text);
-                      if (!confirmPasswordStarted)
-                        setConfirmPasswordStarted(true);
-                    }}
-                    placeholder="Repite tu contraseña"
-                    placeholderTextColor="#9CA3AF"
-                    secureTextEntry={!showConfirmPassword}
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    style={{
-                      lineHeight: 16,
-                      fontSize: 14,
-                      textAlignVertical: "center",
-                    }}
-                    textContentType="newPassword"
-                    autoComplete="new-password"
-                    importantForAutofill="yes"
-                    passwordRules="required: upper; required: lower; required: digit; required: special; minlength: 6; maxlength: 32;"
-                    className="h-14 pl-4 pr-12 rounded-2xl bg-gray-100 text-base leading-5"
-                  />
-                  <TouchableOpacity
-                    className="absolute right-4"
-                    onPress={() => {
-                      setShowConfirmPassword(!showConfirmPassword);
-                      confirmPasswordInputRef.current?.focus();
-                    }}
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff color="#9CA3AF" size={24} />
-                    ) : (
-                      <Eye color="#9CA3AF" size={24} />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {/* Checklist de requisitos */}
-              {confirmPasswordStarted && (
-                <View className="mt-2 space-y-1">
-                  {/* si las contraseñas no coinciden, el texto se mostrara un mensaje de error en rojo, y si coinciden no se mostrara nada */}
-                  {password === confirmPassword ? null : (
-                    <View className="flex-row items-center gap-2">
-                      <CircleAlert color="#ef4444" size={16} />{" "}
-                      <Text className="text-red-500">
-                        Las contraseñas no coinciden
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              )}
-
-              <Text className="text-xs text-gray-500 pt-2 mt-2">
-                Al registrarte, aceptas nuestros Términos de Servicio y Política
-                de Privacidad
+          {/* Enlace al Login */}
+          <View className="mt-6 flex-row justify-center items-center pb-8">
+            <Text className="text-gray-500">Ya tienes una cuenta? </Text>
+            <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+              <Text className="text-emerald-500 font-medium">
+                Iniciar sesión
               </Text>
-
-              {/* Botón de Registro */}
-              <TouchableOpacity
-                className="w-full h-12 bg-emerald-500 rounded-xl flex items-center justify-center mt-6 active:bg-emerald-600"
-                onPress={handleRegister}
-              >
-                <Text className="text-white text-base font-semibold">
-                  Crear una cuenta
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Enlace al Login */}
-            <View className="mt-6 flex-row justify-center items-center pb-8">
-              <Text className="text-gray-500">Ya tienes una cuenta? </Text>
-              <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-                <Text className="text-emerald-500 font-medium">
-                  Iniciar sesión
-                </Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
