@@ -128,11 +128,6 @@ export default function HouseholdScreen() {
     }
   };
 
-  // Función simulada para unirse (solo para que puedas probar el flujo)
-  const handleJoinMock = () => {
-    setCurrentHousehold(mockHouseholdData);
-  };
-
   // =========================================================================
   // VISTA: CUANDO NO ESTÁS EN NINGÚN HOGAR
   // =========================================================================

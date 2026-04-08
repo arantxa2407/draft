@@ -1,10 +1,5 @@
 import { router } from "expo-router";
-import {
-  ArrowLeft,
-  CircleAlert,
-  Eye,
-  EyeOff,
-} from "lucide-react-native";
+import { ArrowLeft, CircleAlert, Eye, EyeOff } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -26,7 +21,7 @@ export default function LoginScreen() {
       email: "usuario@gmail.com",
       password: "Usuario123!",
     },
-  ]; 
+  ];
 
   /**
    * Validación de formato de email
@@ -38,8 +33,8 @@ export default function LoginScreen() {
     return emailRegex.test(trimmedEmail);
   };
 
-  const validateEmail = () => {
-    if (!isValidEmail(email)) {
+  const handleEmailEndEditing = (text: string) => {
+    if (!isValidEmail(text)) {
       setEmailError("Correo no válido");
     } else {
       setEmailError("");
@@ -71,7 +66,7 @@ export default function LoginScreen() {
     // Buscamos el usuario en nuestra "base de datos" simulada y verificamos la contraseña
     if (isValid) {
       const userFound = usersDB.find(
-        (user) => user.email === email.trim() && user.password === password
+        (user) => user.email === email.trim() && user.password === password,
       );
 
       if (userFound) {
@@ -113,14 +108,16 @@ export default function LoginScreen() {
           <View className="space-y-5">
             {/* Input: Email */}
             <View className="space-y-2">
-              <Text className="font-medium text-gray-900">Correo electrónico</Text>
+              <Text className="font-medium text-gray-900">
+                Correo electrónico
+              </Text>
               <TextInput
                 value={email}
                 onChangeText={(text) => {
                   setEmail(text);
                   if (emailError) setEmailError("");
                 }}
-                onBlur={validateEmail}
+                onEndEditing={(e) => handleEmailEndEditing(e.nativeEvent.text)}
                 placeholder="correo@email.com"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
@@ -183,7 +180,7 @@ export default function LoginScreen() {
                   )}
                 </TouchableOpacity>
               </View>
-              
+
               {passwordError ? (
                 <View className="flex-row gap-2 items-center mt-1">
                   <CircleAlert color="#ef4444" size={16} />

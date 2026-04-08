@@ -1,7 +1,22 @@
-import { router } from "expo-router";
-import { AlertCircle, Bell, Camera, ChevronRight, LogOut, Plus, ScanBarcode } from "lucide-react-native";
-import React from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import {
+  AlertCircle,
+  Bell,
+  Camera,
+  ChevronRight,
+  LogOut,
+  Plus,
+  ScanBarcode,
+} from "lucide-react-native";
+import { useCallback } from "react";
+import {
+  BackHandler,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const expiringItems = [
   {
@@ -9,7 +24,8 @@ const expiringItems = [
     name: "Organic Milk",
     brand: "Dairy",
     daysLeft: 2,
-    image: "https://images.unsplash.com/photo-1641320487573-479720290849?q=80&w=200",
+    image:
+      "https://images.unsplash.com/photo-1641320487573-479720290849?q=80&w=200",
     color: "#F0F9FF",
   },
   {
@@ -17,7 +33,8 @@ const expiringItems = [
     name: "Fresh Strawberries",
     brand: "Fruits",
     daysLeft: 1,
-    image: "https://images.unsplash.com/photo-1543158181-e6f9f6712055?q=80&w=200",
+    image:
+      "https://images.unsplash.com/photo-1543158181-e6f9f6712055?q=80&w=200",
     color: "#FEF2F2",
   },
 ];
@@ -26,6 +43,22 @@ export default function Dashboard() {
   const handleLogout = () => {
     router.replace("/");
   };
+  // Bloquea el botón físico de Android mientras estemos en esta pantalla
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // Retornar 'true' intercepta la acción y evita que vaya hacia atrás
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, []),
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -33,17 +66,21 @@ export default function Dashboard() {
       <View className="px-6 pt-14 pb-4 flex-row justify-between items-center">
         <View>
           <Text className="text-2xl font-bold text-gray-900">Mi nevera</Text>
-          <Text className="text-sm text-gray-500 font-medium">Miércoles, 1 Abril</Text>
+          <Text className="text-sm text-gray-500 font-medium">
+            Miércoles, 1 Abril
+          </Text>
         </View>
-        
+
         <View className="flex-row items-center gap-3">
           {/* Botón de Cerrar Sesión */}
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleLogout}
             className="flex-row items-center gap-1.5 px-3 py-2.5 bg-red-50 rounded-xl border border-red-100"
           >
             <LogOut size={16} color="#DC2626" />
-            <Text className="text-red-600 font-bold text-xs">Cerrar sesión</Text>
+            <Text className="text-red-600 font-bold text-xs">
+              Cerrar sesión
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="w-12 h-12 rounded-2xl bg-gray-50 items-center justify-center border border-gray-100">
@@ -58,15 +95,21 @@ export default function Dashboard() {
         <View className="flex-row px-6 gap-3 mt-4">
           <View className="flex-1 p-4 rounded-3xl bg-emerald-50 border border-emerald-100">
             <Text className="text-2xl font-bold text-emerald-700">24</Text>
-            <Text className="text-xs text-emerald-600 font-medium mt-1">Totales</Text>
+            <Text className="text-xs text-emerald-600 font-medium mt-1">
+              Totales
+            </Text>
           </View>
           <View className="flex-1 p-4 rounded-3xl bg-amber-50 border border-amber-100">
             <Text className="text-2xl font-bold text-amber-700">3</Text>
-            <Text className="text-xs text-amber-600 font-medium mt-1">Venciendo</Text>
+            <Text className="text-xs text-amber-600 font-medium mt-1">
+              Venciendo
+            </Text>
           </View>
           <View className="flex-1 p-4 rounded-3xl bg-gray-50 border border-gray-100">
             <Text className="text-2xl font-bold text-gray-700">21</Text>
-            <Text className="text-xs text-gray-500 font-medium mt-1">Fresco</Text>
+            <Text className="text-xs text-gray-500 font-medium mt-1">
+              Fresco
+            </Text>
           </View>
         </View>
 
@@ -74,15 +117,21 @@ export default function Dashboard() {
         <View className="px-6 mt-8 flex-row gap-3">
           <TouchableOpacity className="flex-1 bg-emerald-500 p-4 rounded-3xl items-center">
             <Camera size={24} color="white" />
-            <Text className="text-white text-[10px] font-bold mt-2 text-center">Ticket</Text>
+            <Text className="text-white text-[10px] font-bold mt-2 text-center">
+              Ticket
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-1 bg-gray-100 p-4 rounded-3xl items-center">
             <ScanBarcode size={24} color="#10B981" />
-            <Text className="text-gray-900 text-[10px] font-bold mt-2 text-center">Barras</Text>
+            <Text className="text-gray-900 text-[10px] font-bold mt-2 text-center">
+              Barras
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity className="flex-1 bg-gray-50 p-4 rounded-3xl items-center border border-gray-100">
             <Plus size={24} color="#6B7280" />
-            <Text className="text-gray-600 text-[10px] font-bold mt-2 text-center">Manual</Text>
+            <Text className="text-gray-600 text-[10px] font-bold mt-2 text-center">
+              Manual
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -91,9 +140,13 @@ export default function Dashboard() {
           <View className="flex-row justify-between items-center mb-4">
             <View className="flex-row items-center gap-2">
               <AlertCircle size={20} color="#F59E0B" />
-              <Text className="text-lg font-bold text-gray-900">Vencen pronto</Text>
+              <Text className="text-lg font-bold text-gray-900">
+                Vencen pronto
+              </Text>
             </View>
-            <TouchableOpacity><Text className="text-emerald-600 font-bold">Ver todo</Text></TouchableOpacity>
+            <TouchableOpacity>
+              <Text className="text-emerald-600 font-bold">Ver todo</Text>
+            </TouchableOpacity>
           </View>
 
           {expiringItems.map((item) => (
@@ -102,11 +155,19 @@ export default function Dashboard() {
               className="flex-row items-center p-3 rounded-2xl mb-3 border border-gray-100"
               style={{ backgroundColor: item.color }}
             >
-              <Image source={{ uri: item.image }} className="w-14 h-14 rounded-xl bg-white" />
+              <Image
+                source={{ uri: item.image }}
+                className="w-14 h-14 rounded-xl bg-white"
+              />
               <View className="flex-1 ml-4">
-                <Text className="font-bold text-gray-900 text-base">{item.name}</Text>
-                <Text className={`text-xs font-bold ${item.daysLeft === 1 ? 'text-red-600' : 'text-amber-600'}`}>
-                  Queda{item.daysLeft > 1 ? "n" : ""} {item.daysLeft} día{item.daysLeft > 1 ? "s" : ""}
+                <Text className="font-bold text-gray-900 text-base">
+                  {item.name}
+                </Text>
+                <Text
+                  className={`text-xs font-bold ${item.daysLeft === 1 ? "text-red-600" : "text-amber-600"}`}
+                >
+                  Queda{item.daysLeft > 1 ? "n" : ""} {item.daysLeft} día
+                  {item.daysLeft > 1 ? "s" : ""}
                 </Text>
               </View>
               <ChevronRight size={20} color="#9CA3AF" />
