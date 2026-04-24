@@ -1,7 +1,14 @@
 import { router } from "expo-router";
 import { ArrowLeft, CircleAlert, Eye, EyeOff } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+  Platform,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -41,6 +48,21 @@ export default function LoginScreen() {
     }
   };
 
+  /*
+   * Validación de contraseña (mínimo 6 caracteres para login)
+   */
+  const isValidPassword = (password: string) => {
+    return password.length >= 6;
+  };
+
+  const handlePasswordEndEditing = (text: string) => {
+    if (!isValidPassword(text)) {
+      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+    } else {
+      setPasswordError("");
+    }
+  };
+
   /**
    * Lógica de Inicio de Sesión
    */
@@ -56,23 +78,76 @@ export default function LoginScreen() {
     }
 
     // Validar Contraseña (mínimo 6 caracteres para login)
-    if (password.length < 6) {
+    if (!isValidPassword(password)) {
       setPasswordError("La contraseña debe tener al menos 6 caracteres");
       isValid = false;
     } else {
       setPasswordError("");
     }
 
-    // Buscamos el usuario en nuestra "base de datos" simulada y verificamos la contraseña
-    if (isValid) {
+    const messageInValid =
+      "Por favor, revisa los campos. Asegúrate de que el correo y la contraseña sean correctos.";
+
+    // Si los datos no son válidos, mostramos un alert de error
+    if (!isValid) {
+      if (Platform.OS === "web") {
+        window.alert(messageInValid);
+      } else {
+        Alert.alert(
+          "Error en los datos",
+          messageInValid,
+          [
+            {
+              text: "OK",
+            },
+          ],
+          { cancelable: false },
+        );
+      }
+      return; // Detener la ejecución de la función si hay errores
+    } else {
+      // Si los datos son válidos, procedemos a verificar el usuario
       const userFound = usersDB.find(
         (user) => user.email === email.trim() && user.password === password,
       );
 
+      const messageLogin = "Bienvenido a FoodSync";
+      const messageIncorrectLogin = "Correo o contraseña incorrectos";
+
       if (userFound) {
-        router.replace("/(tabs)/dashboard");
+        if (Platform.OS === "web") {
+          window.alert(messageLogin);
+          router.replace("/(tabs)/settings");
+        } else {
+          // Si el usuario está en la base de datos, mostramos el alert de éxito
+          Alert.alert(
+            "Inicio de sesión exitoso",
+            messageLogin,
+            [
+              {
+                text: "OK",
+                onPress: () => router.replace("/(tabs)/household"),
+              },
+            ],
+            { cancelable: false },
+          );
+        }
       } else {
-        setPasswordError("Correo o contraseña incorrectos");
+        if (Platform.OS === "web") {
+          window.alert(messageIncorrectLogin);
+        } else {
+          // Si no se encuentra el usuario, mostramos el alert de error
+          Alert.alert(
+            "Error al hacer inicio de sesión",
+            messageIncorrectLogin,
+            [
+              {
+                text: "OK",
+              },
+            ],
+            { cancelable: false },
+          );
+        }
       }
     }
   };
@@ -152,6 +227,9 @@ export default function LoginScreen() {
                     setPassword(text);
                     if (passwordError) setPasswordError("");
                   }}
+                  onEndEditing={(e) =>
+                    handlePasswordEndEditing(e.nativeEvent.text)
+                  }
                   placeholder="Introduce tu contraseña"
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPassword}
@@ -201,7 +279,7 @@ export default function LoginScreen() {
           </View>
 
           {/* Enlace al Registro */}
-          <View className="mt-auto flex-row justify-center items-center pb-8">
+          <View className="mt-6 flex-row justify-center items-center pb-8">
             <Text className="text-gray-500">¿No tienes cuenta? </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
               <Text className="text-emerald-500 font-bold">Regístrate</Text>

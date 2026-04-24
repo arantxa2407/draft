@@ -7,7 +7,14 @@ import {
   EyeOff,
 } from "lucide-react-native";
 import React, { useRef, useState } from "react";
-import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -22,10 +29,17 @@ export default function RegisterScreen() {
   const [passwordStarted, setPasswordStarted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordStarted, setConfirmPasswordStarted] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  /*
+  function that controls if the name is in the correct format:
+- between 2 and 16 characters
+- no spaces at the beginning or end
+  */
 
   const isValidName = (name: string) => {
     const trimmedName = name.trim();
@@ -40,6 +54,16 @@ export default function RegisterScreen() {
     }
   };
 
+  /*
+  function that controls if the email is in the correct format:
+  - not longer than 128 characters
+  - no spaces at the beginning or end
+  - contains an "@" symbol
+  - contains a "." after the "@" symbol
+  --future--
+  when we have the db we will chceck if the email is not already in use, and if it is, we will
+  show an error message saying "This email is already in use"
+  */
   const isValidEmail = (email: string) => {
     const trimmedEmail = email.trim();
     if (trimmedEmail.length === 0 || trimmedEmail.length > 128) {
@@ -56,6 +80,14 @@ export default function RegisterScreen() {
       setEmailError("");
     }
   };
+
+  /*function that controls if the password is in the correct format:
+- between 6 and 32 characters
+- at least one uppercase letter
+- at least one lowercase letter
+- at least one number 
+- at least one special character (!@#$%^&*()-+)
+  */
 
   const getPasswordChecks = (password: string) => {
     const hasValidLength = password.length >= 6 && password.length <= 32;
@@ -103,7 +135,6 @@ export default function RegisterScreen() {
 
   const handleConfirmPasswordEndEditing = (text: string) => {
     setConfirmPasswordStarted(true);
-    // Comparamos el texto nativo con el estado de password
     if (text === "" || text !== password) {
       setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
     } else {
@@ -150,22 +181,35 @@ export default function RegisterScreen() {
       setConfirmPasswordError("");
     }
 
+    const successMessage =
+      "¡Registro Exitoso! Tu cuenta ha sido creada correctamente.";
+    const errorMessage =
+      "Error en el registro. Por favor, corrige los errores antes de registrarte.";
+
     if (isValid) {
-      Alert.alert(
-        "¡Registro Exitoso!",
-        "Tu cuenta ha sido creada correctamente.",
-        [
-          {
-            text: "Continuar",
-            onPress: () => router.replace("/(tabs)/dashboard"),
-          },
-        ],
-      );
+      if (Platform.OS === "web") {
+        window.alert(successMessage);
+      } else {
+        Alert.alert(
+          "¡Registro Exitoso!",
+          "Tu cuenta ha sido creada correctamente.",
+          [
+            {
+              text: "Continuar",
+              onPress: () => router.replace("/(tabs)/settings"),
+            },
+          ],
+        );
+      }
     } else {
-      Alert.alert(
-        "Error en el registro",
-        "Por favor, corrige los errores antes de registrarte.",
-      );
+      if (Platform.OS === "web") {
+        window.alert(errorMessage);
+      } else {
+        Alert.alert(
+          "Error en el registro",
+          "Por favor, corrige los errores antes de registrarte.",
+        );
+      }
     }
   };
 
@@ -201,6 +245,7 @@ export default function RegisterScreen() {
         extraScrollHeight={40}
         showsVerticalScrollIndicator={false}
       >
+        {/* Botón de Atrás */}
         <View className="px-4 pt-6 pb-4">
           <TouchableOpacity
             className="w-10 h-10 rounded-xl flex items-center justify-center active:bg-gray-200"
@@ -210,6 +255,7 @@ export default function RegisterScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Contenido Principal */}
         <View className="flex-1 px-6 pt-4">
           <Text className="text-3xl font-bold mb-2 text-gray-900">
             Crear una cuenta
@@ -235,6 +281,7 @@ export default function RegisterScreen() {
                 textContentType="name"
                 className="h-14 px-4 rounded-2xl bg-gray-100 text-base "
               />
+              {/* Muestra el error del nombre si existe */}
               {nameError ? (
                 <View className="flex-row gap-2 items-center">
                   <CircleAlert color="#ef4444" size={16} />
@@ -263,6 +310,7 @@ export default function RegisterScreen() {
                 importantForAutofill="yes"
                 className="h-14 px-4 rounded-2xl bg-gray-100 text-base"
               />
+              {/* Muestra el error del correo si existe */}
               {emailError ? (
                 <View className="flex-row gap-2 items-center">
                   <CircleAlert color="#ef4444" size={16} />
@@ -274,6 +322,7 @@ export default function RegisterScreen() {
             {/* Input: Password */}
             <View className="space-y-2 mt-4">
               <Text className="font-medium text-gray-900">Contraseña</Text>
+              {/* Contenedor ojo */}
               <View className="justify-center align-middle">
                 <TextInput
                   ref={passwordInputRef}
@@ -298,6 +347,7 @@ export default function RegisterScreen() {
                   className="h-14 pl-4 pr-12 rounded-2xl bg-gray-100 text-base leading-5"
                 />
 
+                {/* Botón del ojito */}
                 <TouchableOpacity
                   className="absolute right-4"
                   onPress={() => {
@@ -406,6 +456,7 @@ export default function RegisterScreen() {
               de Privacidad
             </Text>
 
+            {/* Botón de Registro */}
             <TouchableOpacity
               className="w-full h-12 bg-emerald-500 rounded-xl flex items-center justify-center mt-6 active:bg-emerald-600"
               onPress={handleRegister}
@@ -416,6 +467,7 @@ export default function RegisterScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Enlace al Login */}
           <View className="mt-6 flex-row justify-center items-center pb-8">
             <Text className="text-gray-500">¿Ya tienes una cuenta? </Text>
             <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
