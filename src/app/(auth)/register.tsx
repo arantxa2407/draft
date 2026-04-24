@@ -10,6 +10,7 @@ import React, { useRef, useState } from "react";
 import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { authService } from "../../services/authService";
 
 export default function RegisterScreen() {
   const [name, setName] = useState("");
@@ -22,10 +23,16 @@ export default function RegisterScreen() {
   const [passwordStarted, setPasswordStarted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordStarted, setConfirmPasswordStarted] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const passwordInputRef = useRef<TextInput>(null);
+  const confirmPasswordInputRef = useRef<TextInput>(null);
 
   const isValidName = (name: string) => {
     const trimmedName = name.trim();
@@ -103,7 +110,6 @@ export default function RegisterScreen() {
 
   const handleConfirmPasswordEndEditing = (text: string) => {
     setConfirmPasswordStarted(true);
-    // Comparamos el texto nativo con el estado de password
     if (text === "" || text !== password) {
       setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
     } else {
@@ -113,10 +119,13 @@ export default function RegisterScreen() {
 
   const checks = getPasswordChecks(password);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let isValid = true;
 
-    const nameValid = isValidName(name);
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
+    const nameValid = isValidName(trimmedName);
     if (!nameValid) {
       setNameError("El nombre debe tener entre 2 y 16 caracteres");
       isValid = false;
@@ -124,7 +133,7 @@ export default function RegisterScreen() {
       setNameError("");
     }
 
-    const emailValid = isValidEmail(email);
+    const emailValid = isValidEmail(trimmedEmail);
     if (!emailValid) {
       setEmailError("Correo no válido");
       isValid = false;
@@ -150,22 +159,61 @@ export default function RegisterScreen() {
       setConfirmPasswordError("");
     }
 
-    if (isValid) {
+    if (!isValid) {
       Alert.alert(
-        "¡Registro Exitoso!",
-        "Tu cuenta ha sido creada correctamente.",
+        "Error en el registro",
+        "Por favor, corrige los errores antes de registrarte."
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data = await authService.register(
+        trimmedName,
+        trimmedEmail,
+        password
+      );
+
+      Alert.alert(
+        "¡Registro exitoso!",
+        data?.message || "Tu cuenta ha sido creada correctamente.",
         [
           {
             text: "Continuar",
-            onPress: () => router.replace("/(tabs)/dashboard"),
+            onPress: () => router.replace("/(tabs)/settings"),
           },
-        ],
+        ]
       );
-    } else {
-      Alert.alert(
-        "Error en el registro",
-        "Por favor, corrige los errores antes de registrarte.",
-      );
+    } catch (error: any) {
+      const message =
+        typeof error === "string"
+          ? error
+          : error?.message || "Error al crear la cuenta";
+
+      const lowerMessage = message.toLowerCase();
+
+      if (
+        lowerMessage.includes("username") ||
+        lowerMessage.includes("nombre")
+      ) {
+        setNameError(message);
+      } else if (
+        lowerMessage.includes("email") ||
+        lowerMessage.includes("correo")
+      ) {
+        setEmailError(message);
+      } else if (
+        lowerMessage.includes("password") ||
+        lowerMessage.includes("contraseña")
+      ) {
+        setPasswordError(message);
+      } else {
+        Alert.alert("Error en el registro", message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -188,9 +236,6 @@ export default function RegisterScreen() {
       </View>
     );
   };
-
-  const passwordInputRef = useRef<TextInput>(null);
-  const confirmPasswordInputRef = useRef<TextInput>(null);
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
@@ -406,16 +451,19 @@ export default function RegisterScreen() {
               de Privacidad
             </Text>
 
+            {/* Botón de Registro */}
             <TouchableOpacity
               className="w-full h-12 bg-emerald-500 rounded-xl flex items-center justify-center mt-6 active:bg-emerald-600"
               onPress={handleRegister}
+              disabled={loading}
             >
               <Text className="text-white text-base font-semibold">
-                Crear una cuenta
+                {loading ? "Creando cuenta..." : "Crear una cuenta"}
               </Text>
             </TouchableOpacity>
           </View>
 
+          {/* Enlace al Login */}
           <View className="mt-6 flex-row justify-center items-center pb-8">
             <Text className="text-gray-500">¿Ya tienes una cuenta? </Text>
             <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
