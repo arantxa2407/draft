@@ -1,51 +1,77 @@
-import apiClient from './client';
-import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
+import apiClient from "./client";
+
+const setToken = async (key: string, value: string) => {
+  if (Platform.OS === "web") {
+    localStorage.setItem(key, value);
+  } else {
+    await SecureStore.setItemAsync(key, value);
+  }
+};
+
+const deleteToken = async (key: string) => {
+  if (Platform.OS === "web") {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+};
 
 export const authService = {
-  // Registro: Mapeamos 'name' del front a 'username' del back
   register: async (name: string, email: string, pass: string) => {
     try {
-      const response = await apiClient.post('/auth/register', {
+      const response = await apiClient.post("/auth/register", {
         username: name,
-        email: email,
-        password: pass
+        email,
+        password: pass,
       });
-      
-      // Guardamos los tokens que nos devuelve el back
+
       if (response.data.access_token) {
-        await SecureStore.setItemAsync('access_token', response.data.access_token);
-        await SecureStore.setItemAsync('refresh_token', response.data.refresh_token);
+        await setToken("access_token", response.data.access_token);
+        await setToken("refresh_token", response.data.refresh_token);
       }
+
       return response.data;
     } catch (error: any) {
-      // Extraemos el error que configuraste en FastAPI (HTTPException)
+      console.error("Error en el registro:", error);
       throw error.response?.data?.detail || "Error al crear la cuenta";
     }
   },
 
   login: async (email: string, pass: string) => {
     try {
-      const response = await apiClient.post('/auth/login', {
+      const response = await apiClient.post("/auth/login", {
         email,
-        password: pass
+        password: pass,
       });
+
       if (response.data.access_token) {
-        await SecureStore.setItemAsync('access_token', response.data.access_token);
-        await SecureStore.setItemAsync('refresh_token', response.data.refresh_token);
+        await setToken("access_token", response.data.access_token);
+        await setToken("refresh_token", response.data.refresh_token);
       }
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data?.detail || "Credenciales incorrectas";
     }
   },
 
+  verify: async () => {
+    try {
+      const response = await apiClient.get("/auth/verify");
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data?.detail || "Sesión caducada";
+    }
+  },
+
   logout: async () => {
     try {
-      await apiClient.post('/auth/logout');
+      await apiClient.post("/auth/logout");
     } finally {
-      // Siempre borramos los tokens del móvil
-      await SecureStore.deleteItemAsync('access_token');
-      await SecureStore.deleteItemAsync('refresh_token');
+      await deleteToken("access_token");
+      await deleteToken("refresh_token");
     }
-  }
+  },
 };

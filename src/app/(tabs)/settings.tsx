@@ -1,3 +1,4 @@
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import {
   Bell,
@@ -12,7 +13,7 @@ import {
   Trash2,
   User,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -23,6 +24,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { authService } from "../../services/authService";
 
 export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -30,16 +32,45 @@ export default function SettingsScreen() {
   const [lowStockAlerts, setLowStockAlerts] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Mock data del usuario
-  const user = {
-    name: "Usuario",
-    email: "usuario@gmail.com",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = () => {
-    // Aquí iría tu lógica de limpiar el token/sesión
-    router.replace("/(auth)/login");
+  const [userData, setUserData] = useState({
+    name: "Cargando...",
+    email: "Cargando...",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e", // Avatar por defecto
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserData = async () => {
+        try {
+          const result = await authService.verify();
+          setUserData({
+            name: result.user.username,
+            email: result.user.email,
+            avatar:
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+          });
+        } catch (error) {
+          console.error("Error al verificar sesión:", error);
+          router.replace("/");
+        }
+      };
+
+      fetchUserData();
+    }, []),
+  );
+
+  const handleLogout = async () => {
+    setIsLoading(true);
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Error al cerrar sesión en el servidor:", error);
+    } finally {
+      setIsLoading(false);
+      router.replace("/");
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -76,12 +107,14 @@ export default function SettingsScreen() {
         {/* Tarjeta de Perfil */}
         <TouchableOpacity className="flex-row items-center gap-4 bg-white p-4 rounded-2xl mb-8 shadow-sm border border-gray-100">
           <Image
-            source={{ uri: user.avatar }}
+            source={{ uri: userData.avatar }}
             className="w-16 h-16 rounded-full bg-gray-200"
           />
           <View className="flex-1">
-            <Text className="font-bold text-lg text-gray-900">{user.name}</Text>
-            <Text className="text-sm text-gray-500">{user.email}</Text>
+            <Text className="font-bold text-lg text-gray-900">
+              {userData.name}
+            </Text>
+            <Text className="text-sm text-gray-500">{userData.email}</Text>
           </View>
           <ChevronRight color="#9CA3AF" size={24} />
         </TouchableOpacity>
@@ -184,12 +217,15 @@ export default function SettingsScreen() {
         {/* Botones de Peligro (Cerrar sesión y Eliminar cuenta) */}
         <View className="space-y-4 gap-4">
           <TouchableOpacity
-            className="w-full flex-row items-center justify-center h-14 bg-white border border-red-200 rounded-2xl shadow-sm active:bg-red-50"
+            className={`w-full flex-row items-center justify-center h-14 bg-white border border-red-200 rounded-2xl shadow-sm ${
+              isLoading ? "opacity-50" : "active:bg-red-50"
+            }`}
             onPress={handleLogout}
+            disabled={isLoading}
           >
             <LogOut color="#ef4444" size={20} />
             <Text className="text-red-500 font-semibold text-base ml-2">
-              Cerrar sesión
+              {isLoading ? "Cerrando sesión..." : "Cerrar sesión"}
             </Text>
           </TouchableOpacity>
 

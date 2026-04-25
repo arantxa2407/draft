@@ -2,15 +2,16 @@ import { router } from "expo-router";
 import { ArrowLeft, CircleAlert, Eye, EyeOff } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import {
+  Alert,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-  Alert,
-  Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { authService } from "../../services/authService";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -22,13 +23,7 @@ export default function LoginScreen() {
 
   const passwordInputRef = useRef<TextInput>(null);
 
-  // Aquí definimos nuestro usuario para simular la autenticación. En una app real, esto vendría de una base de datos o servicio de autenticación.
-  const usersDB = [
-    {
-      email: "usuario@gmail.com",
-      password: "Usuario123!",
-    },
-  ];
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Validación de formato de email
@@ -66,89 +61,33 @@ export default function LoginScreen() {
   /**
    * Lógica de Inicio de Sesión
    */
-  const handleLogin = () => {
+
+  const handleLogin = async () => {
     let isValid = true;
 
-    // Validar Email
     if (!isValidEmail(email)) {
       setEmailError("Correo no válido");
       isValid = false;
-    } else {
-      setEmailError("");
     }
-
-    // Validar Contraseña (mínimo 6 caracteres para login)
     if (!isValidPassword(password)) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+      setPasswordError("Revisa tu contraseña");
       isValid = false;
-    } else {
-      setPasswordError("");
     }
 
-    const messageInValid =
-      "Por favor, revisa los campos. Asegúrate de que el correo y la contraseña sean correctos.";
+    if (!isValid) return;
 
-    // Si los datos no son válidos, mostramos un alert de error
-    if (!isValid) {
-      if (Platform.OS === "web") {
-        window.alert(messageInValid);
-      } else {
-        Alert.alert(
-          "Error en los datos",
-          messageInValid,
-          [
-            {
-              text: "OK",
-            },
-          ],
-          { cancelable: false },
-        );
+    setIsLoading(true);
+
+    try {
+      await authService.login(email.trim(), password);
+
+      router.replace("/(tabs)/household");
+    } catch (error: any) {
+      if (Platform.OS !== "web") {
+        Alert.alert("Error de inicio de sesión", error);
       }
-      return; // Detener la ejecución de la función si hay errores
-    } else {
-      // Si los datos son válidos, procedemos a verificar el usuario
-      const userFound = usersDB.find(
-        (user) => user.email === email.trim() && user.password === password,
-      );
-
-      const messageLogin = "Bienvenido a FoodSync";
-      const messageIncorrectLogin = "Correo o contraseña incorrectos";
-
-      if (userFound) {
-        if (Platform.OS === "web") {
-          window.alert(messageLogin);
-          router.replace("/(tabs)/settings");
-        } else {
-          // Si el usuario está en la base de datos, mostramos el alert de éxito
-          Alert.alert(
-            "Inicio de sesión exitoso",
-            messageLogin,
-            [
-              {
-                text: "OK",
-                onPress: () => router.replace("/(tabs)/household"),
-              },
-            ],
-            { cancelable: false },
-          );
-        }
-      } else {
-        if (Platform.OS === "web") {
-          window.alert(messageIncorrectLogin);
-        } else {
-          // Si no se encuentra el usuario, mostramos el alert de error
-          Alert.alert(
-            "Error al hacer inicio de sesión",
-            messageIncorrectLogin,
-            [
-              {
-                text: "OK",
-              },
-            ],
-            { cancelable: false },
-          );
-        }
-      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -207,7 +146,6 @@ export default function LoginScreen() {
                 </View>
               ) : null}
             </View>
-
             {/* Input: Password */}
             <View className="space-y-2 mt-4">
               <View className="flex-row justify-between items-center">
@@ -266,14 +204,18 @@ export default function LoginScreen() {
                 </View>
               ) : null}
             </View>
-
             {/* Botón de Inicio de Sesión */}
             <TouchableOpacity
-              className="w-full h-12 bg-emerald-500 rounded-xl flex items-center justify-center mt-8 active:bg-emerald-600 shadow-sm"
+              className={`w-full h-12 rounded-xl flex items-center justify-center mt-4 shadow-sm ${
+                isLoading
+                  ? "bg-emerald-400"
+                  : "bg-emerald-500 active:bg-emerald-600"
+              }`}
               onPress={handleLogin}
+              disabled={isLoading}
             >
-              <Text className="text-white text-base font-semibold">
-                Iniciar sesión
+              <Text className="text-white text-base font-bold">
+                {isLoading ? "Iniciando..." : "Iniciar sesión"}
               </Text>
             </TouchableOpacity>
           </View>
