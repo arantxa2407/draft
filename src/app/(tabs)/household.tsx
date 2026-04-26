@@ -9,7 +9,7 @@ import HouseholdDashboard from "../../components/household/HouseholdDashboard";
 import NoHousehold from "../../components/household/NoHousehold";
 
 export default function HouseholdScreen() {
-  const { session } = useAuth();
+  const { session, setHasHome } = useAuth();
   const [currentHousehold, setCurrentHousehold] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,8 +24,10 @@ export default function HouseholdScreen() {
     try {
       const data = await homeService.getHome();
       setCurrentHousehold(data);
+      setHasHome(true);
     } catch (error: any) {
       setCurrentHousehold(null);
+      setHasHome(false);
     } finally {
       setIsLoading(false);
     }

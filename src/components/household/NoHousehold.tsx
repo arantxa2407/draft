@@ -24,7 +24,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
     setIsSubmitting(true);
     try {
       await homeService.createHome(homeName.trim());
-      onSuccess(); // Recargamos datos en el padre
+      onSuccess();
     } catch (error: any) {
       Alert.alert("Error al crear", error);
     } finally {

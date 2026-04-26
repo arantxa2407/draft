@@ -1,9 +1,12 @@
+import { useAuth } from "@/src/context/AuthContext";
 import { Tabs } from "expo-router";
 import { Home, Package, Settings, Users } from "lucide-react-native";
 import React from "react";
 import { Platform } from "react-native";
 
 export default function TabLayout() {
+  const { hasHome } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -41,6 +44,7 @@ export default function TabLayout() {
         name="dashboard"
         options={{
           title: "Home",
+          href: hasHome ? "/(tabs)/dashboard" : null, // <-- OCULTA SI ES FALSE
           tabBarIcon: ({ color, focused }) => (
             <Home color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
           ),
@@ -52,6 +56,7 @@ export default function TabLayout() {
         name="inventory"
         options={{
           title: "Inventory",
+          href: hasHome ? "/(tabs)/inventory" : null, // <-- OCULTA SI ES FALSE
           tabBarIcon: ({ color, focused }) => (
             <Package color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
           ),

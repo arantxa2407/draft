@@ -5,7 +5,7 @@ import "../../global.css";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 
 const RootLayoutNav = () => {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading, hasHome } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -20,15 +20,17 @@ const RootLayoutNav = () => {
     if (!session && !isPublicScreen) {
       router.replace("/");
     } else if (session && isPublicScreen) {
-      router.replace("/(tabs)/household");
+      if (hasHome) {
+        router.replace("/(tabs)/dashboard");
+      } else {
+        router.replace("/(tabs)/household");
+      }
     }
-  }, [session, isLoading, segments]);
-
+  }, [session, isLoading, segments, hasHome]);
   return (
     <View style={{ flex: 1 }}>
       <Stack screenOptions={{ headerShown: false }} />
 
-      {/* Esto tapa la pantalla mientras verifica, sin destruir el navegador */}
       {isLoading && (
         <View className="absolute top-0 bottom-0 left-0 right-0 z-50 flex-1 justify-center items-center bg-[#F8FAF8]">
           <Text className="text-emerald-500 font-bold text-lg">
