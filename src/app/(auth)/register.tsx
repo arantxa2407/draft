@@ -148,6 +148,8 @@ export default function RegisterScreen() {
   const checks = getPasswordChecks(password);
 
   const handleRegister = async () => {
+    if (loading) return;
+
     let isValid = true;
 
     const trimmedName = name.trim();
@@ -200,9 +202,6 @@ export default function RegisterScreen() {
     }
 
     try {
-      await authService.register(name, email, password);
-
-      await checkSession();
       setLoading(true);
 
       const data = await authService.register(
@@ -210,6 +209,8 @@ export default function RegisterScreen() {
         trimmedEmail,
         password,
       );
+
+      await checkSession();
 
       const finalMessage =
         data?.message || "Tu cuenta ha sido creada correctamente.";

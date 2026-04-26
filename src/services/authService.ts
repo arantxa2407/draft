@@ -74,4 +74,14 @@ export const authService = {
       await deleteToken("refresh_token");
     }
   },
+
+  deleteAccount: async () => {
+    try {
+      await apiClient.delete("/auth/delete");
+    } finally {
+      await deleteToken("access_token");
+      await deleteToken("refresh_token");
+    }
+  },
+
 };

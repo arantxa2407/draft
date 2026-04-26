@@ -84,12 +84,25 @@ export default function SettingsScreen() {
         {
           text: "Sí, eliminar",
           style: "destructive",
-          onPress: () => {
-            // Aquí iría tu llamada a la API para borrar la cuenta
-            router.replace("/(auth)/register");
+          onPress: async () => {
+            setIsLoading(true);
+            try {
+              await authService.deleteAccount();
+
+              router.dismissAll();
+              router.replace("/");
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "No se pudo eliminar la cuenta. Inténtalo de nuevo."
+              );
+            } finally {
+              setIsLoading(false);
+              setSession(null);
+            }
           },
         },
-      ],
+      ]
     );
   };
 
@@ -233,12 +246,15 @@ export default function SettingsScreen() {
 
           {/* Botón de eliminar cuenta añadido */}
           <TouchableOpacity
-            className="w-full flex-row items-center justify-center h-14 bg-red-50 rounded-2xl active:bg-red-100"
-            onPress={handleDeleteAccount}
-          >
+              className={`w-full flex-row items-center justify-center h-14 rounded-2xl ${
+                isLoading ? "bg-red-100 opacity-50" : "bg-red-50 active:bg-red-100"
+              }`}
+              onPress={handleDeleteAccount}
+              disabled={isLoading}
+            >
             <Trash2 color="#ef4444" size={20} />
             <Text className="text-red-500 font-semibold text-base ml-2">
-              Eliminar cuenta
+              {isLoading ? "Eliminando cuenta..." : "Eliminar cuenta"}
             </Text>
           </TouchableOpacity>
         </View>
