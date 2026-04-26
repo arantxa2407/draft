@@ -12,6 +12,7 @@ const getToken = async (key: string) => {
 
 const apiClient = axios.create({
   baseURL: "http://192.168.0.154:8000",
+  timeout: 5000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -24,5 +25,17 @@ apiClient.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+      return Promise.reject(
+        "El servidor tarda demasiado en responder. Inténtalo de nuevo.",
+      );
+    }
+    return Promise.reject(error);
+  },
+);
 
 export default apiClient;
