@@ -217,12 +217,10 @@ export default function RegisterScreen() {
 
       if (Platform.OS === "web") {
         window.alert(finalMessage);
-        router.replace("/(tabs)/settings");
       } else {
         Alert.alert("¡Registro Exitoso!", finalMessage, [
           {
             text: "Continuar",
-            onPress: () => router.replace("/(tabs)/settings"),
           },
         ]);
       }
