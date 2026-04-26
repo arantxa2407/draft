@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import { router } from "expo-router";
 import { ArrowLeft, CircleAlert, Eye, EyeOff } from "lucide-react-native";
 import React, { useRef, useState } from "react";
@@ -24,6 +25,8 @@ export default function LoginScreen() {
   const passwordInputRef = useRef<TextInput>(null);
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const { checkSession } = useAuth();
 
   /**
    * Validación de formato de email
@@ -80,8 +83,7 @@ export default function LoginScreen() {
 
     try {
       await authService.login(email.trim(), password);
-
-      router.replace("/(tabs)/household");
+      await checkSession();
     } catch (error: any) {
       if (Platform.OS !== "web") {
         Alert.alert("Error de inicio de sesión", error);
@@ -223,7 +225,9 @@ export default function LoginScreen() {
           {/* Enlace al Registro */}
           <View className="mt-6 flex-row justify-center items-center pb-8">
             <Text className="text-gray-500">¿No tienes cuenta? </Text>
-            <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
+            <TouchableOpacity
+              onPress={() => router.replace("/(auth)/register")}
+            >
               <Text className="text-emerald-500 font-bold">Regístrate</Text>
             </TouchableOpacity>
           </View>

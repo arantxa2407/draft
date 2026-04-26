@@ -24,9 +24,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 
 export default function SettingsScreen() {
+  const { setSession } = useAuth();
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [expirationAlerts, setExpirationAlerts] = useState(true);
   const [lowStockAlerts, setLowStockAlerts] = useState(true);
@@ -48,8 +51,7 @@ export default function SettingsScreen() {
           setUserData({
             name: result.user.username,
             email: result.user.email,
-            avatar:
-              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+            avatar: `https://ui-avatars.com/api/?name=${result.user.username}&background=10B981&color=fff&bold=true`,
           });
         } catch (error) {
           console.error("Error al verificar sesión:", error);
@@ -69,7 +71,7 @@ export default function SettingsScreen() {
       console.error("Error al cerrar sesión en el servidor:", error);
     } finally {
       setIsLoading(false);
-      router.replace("/");
+      setSession(null);
     }
   };
 

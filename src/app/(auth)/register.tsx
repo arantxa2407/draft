@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "../../context/AuthContext";
 import { authService } from "../../services/authService";
 
 export default function RegisterScreen() {
@@ -40,6 +41,8 @@ export default function RegisterScreen() {
 
   const passwordInputRef = useRef<TextInput>(null);
   const confirmPasswordInputRef = useRef<TextInput>(null);
+
+  const { checkSession } = useAuth();
 
   const isValidName = (name: string) => {
     const trimmedName = name.trim();
@@ -197,6 +200,9 @@ export default function RegisterScreen() {
     }
 
     try {
+      await authService.register(name, email, password);
+
+      await checkSession();
       setLoading(true);
 
       const data = await authService.register(
