@@ -133,4 +133,27 @@ export const inventoryService = {
       throw error.response?.data?.detail || "No se pudo cargar el producto";
     }
   },
+
+  updateProductQuantity: async (id_producte: string, modificacio: number) => {
+    try {
+        const response = await apiClient.patch("/inventory_modify", {
+        id_producte,
+        modificacio,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw error.response?.data?.detail || "No se pudo modificar la cantidad";
+    }
+    },
+
+  deleteProduct: async (id_producte: string) => {
+    try {
+        const response = await apiClient.delete("/inventory_delete_product", {
+        data: { id_producte },
+        });
+        return response.data;
+    } catch (error: any) {
+        throw error.response?.data?.detail || "No se pudo eliminar el producto";
+    }
+},
 };
