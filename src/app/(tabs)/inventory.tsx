@@ -10,7 +10,13 @@ import {
   Users,
   X,
 } from "lucide-react-native";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -81,9 +87,12 @@ export default function InventoryScreen() {
     }
   };
 
-  const fetchInventory = async (overrideSearch?: string) => {
+  const fetchInventory = async (
+    overrideSearch?: string,
+    showLoader: boolean = true
+  ) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       setError("");
 
       const data = await inventoryService.getInventoryProducts({
@@ -102,7 +111,7 @@ export default function InventoryScreen() {
         typeof err === "string" ? err : "No se pudo cargar el inventario"
       );
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
@@ -162,11 +171,23 @@ export default function InventoryScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchCurrentUser();
-      fetchInventory();
       fetchCategories();
       fetchMembers();
-    }, [])
+      fetchInventory(undefined, false);
+    }, [
+      search,
+      categoria,
+      ownerUserId,
+      minQuantity,
+      maxQuantity,
+      nutritionScore,
+      expiryFilter,
+    ])
   );
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
   useEffect(() => {
     if (debounceRef.current) {
@@ -174,7 +195,7 @@ export default function InventoryScreen() {
     }
 
     debounceRef.current = setTimeout(() => {
-      fetchInventory(search);
+      fetchInventory(search, false);
     }, 350);
 
     return () => {
@@ -186,7 +207,7 @@ export default function InventoryScreen() {
 
   const applyFilters = () => {
     setShowFilters(false);
-    fetchInventory();
+    fetchInventory(undefined, false);
   };
 
   const clearFilters = async () => {
@@ -197,9 +218,9 @@ export default function InventoryScreen() {
     setMaxQuantity("");
     setNutritionScore("");
     setExpiryFilter("");
+    setShowFilters(false);
 
     try {
-      setLoading(true);
       setError("");
       const data = await inventoryService.getInventoryProducts();
       setProducts(data);
@@ -513,7 +534,9 @@ export default function InventoryScreen() {
                     label={score}
                     selected={nutritionScore === score}
                     onPress={() =>
-                      setNutritionScore((prev) => (prev === score ? "" : score))
+                      setNutritionScore((prev) =>
+                        prev === score ? "" : score
+                      )
                     }
                   />
                 ))}
@@ -570,7 +593,7 @@ export default function InventoryScreen() {
               </Text>
               <TouchableOpacity
                 className="mt-4 bg-emerald-500 px-5 py-3 rounded-xl"
-                onPress={applyFilters}
+                onPress={() => fetchInventory()}
               >
                 <Text className="text-white font-semibold">Reintentar</Text>
               </TouchableOpacity>

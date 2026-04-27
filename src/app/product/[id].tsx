@@ -1,51 +1,176 @@
 import { router, useLocalSearchParams } from "expo-router";
 import {
-    ArrowLeft,
-    CircleAlert,
-    Package,
-    ShieldCheck,
-    Tag,
+  ArrowLeft,
+  CircleAlert,
+  Package,
+  ShieldCheck,
+  Tag,
+  Trash2,
 } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-    inventoryService,
-    type InventoryProductDetail,
+  inventoryService,
+  type InventoryProductDetail,
 } from "../../services/inventoryService";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+
   const [product, setProduct] = useState<InventoryProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchProduct = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  const [updatingQuantity, setUpdatingQuantity] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState(false);
 
+  const holdTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const fetchProduct = async (showLoader = true) => {
+    try {
       if (!id) return;
 
-      const data = await inventoryService.getInventoryProductDetail(id);
+      if (showLoader) setLoading(true);
+      setError("");
+
+      const data = await inventoryService.getInventoryProductDetail(String(id));
       setProduct(data);
     } catch (err: any) {
       setError(typeof err === "string" ? err : "No se pudo cargar el producto");
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProduct();
+    fetchProduct(true);
   }, [id]);
+
+  useEffect(() => {
+    return () => {
+      stopContinuousUpdate();
+    };
+  }, []);
+
+  const getStockStatus = (quantity: number) => {
+    if (quantity <= 0) return "Sin stock";
+    if (quantity <= 2) return "Stock bajo";
+    return "En stock";
+  };
+
+  const handleUpdateQuantity = async (delta: number) => {
+    if (!product || !id || updatingQuantity || deletingProduct) return;
+
+    const currentQuantity = product.quantitat_stock ?? 0;
+
+    if (delta < 0 && currentQuantity <= 0) return;
+
+    try {
+      setUpdatingQuantity(true);
+
+      const response = await inventoryService.updateProductQuantity(
+        String(id),
+        delta
+      );
+
+      const backendQuantity =
+        response?.producte?.quantitat_restant ??
+        response?.product?.quantitat_restant ??
+        response?.quantitat_restant;
+
+      if (typeof backendQuantity === "number") {
+        setProduct((prev) =>
+          prev
+            ? {
+                ...prev,
+                quantitat_stock: backendQuantity,
+                estat_stock: getStockStatus(backendQuantity),
+              }
+            : prev
+        );
+      } else {
+        await fetchProduct(false);
+      }
+    } catch (err: any) {
+      Alert.alert(
+        "Error",
+        typeof err === "string"
+          ? err
+          : "No se pudo actualizar la cantidad"
+      );
+    } finally {
+      setUpdatingQuantity(false);
+    }
+  };
+
+  const stopContinuousUpdate = () => {
+    if (holdTimeoutRef.current) {
+      clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
+    }
+
+    if (holdIntervalRef.current) {
+      clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+  };
+
+  const startContinuousUpdate = (delta: number) => {
+    if (!product || updatingQuantity || deletingProduct) return;
+    if (delta < 0 && (product.quantitat_stock ?? 0) <= 0) return;
+
+    stopContinuousUpdate();
+
+    holdTimeoutRef.current = setTimeout(() => {
+      holdIntervalRef.current = setInterval(() => {
+        handleUpdateQuantity(delta);
+      }, 250);
+    }, 350);
+  };
+
+  const handleDeleteProduct = () => {
+    if (!product || deletingProduct || updatingQuantity) return;
+
+    Alert.alert(
+      "Eliminar producto",
+      `¿Seguro que quieres eliminar "${product.nom}" del inventario?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setDeletingProduct(true);
+              await inventoryService.deleteProduct(String(id));
+              router.back();
+            } catch (err: any) {
+              Alert.alert(
+                "Error",
+                typeof err === "string"
+                  ? err
+                  : "No se pudo eliminar el producto"
+              );
+              setDeletingProduct(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const InfoRow = ({
     label,
@@ -75,8 +200,9 @@ export default function ProductDetailScreen() {
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
       <View className="px-4 pt-6 pb-4 bg-white border-b border-gray-200">
         <TouchableOpacity
-          className="w-10 h-10 rounded-xl flex items-center justify-center active:bg-gray-200"
+          className="w-10 h-10 rounded-xl items-center justify-center"
           onPress={() => router.back()}
+          disabled={updatingQuantity || deletingProduct}
         >
           <ArrowLeft color="#1F2937" size={24} />
         </TouchableOpacity>
@@ -89,14 +215,14 @@ export default function ProductDetailScreen() {
         </View>
       ) : error || !product ? (
         <View className="flex-1 items-center justify-center px-6">
-          <CircleAlert color="#ef4444" size={28} />
+          <CircleAlert color="#EF4444" size={28} />
           <Text className="text-red-500 text-center font-medium mt-3">
             {error || "No se pudo cargar el producto"}
           </Text>
 
           <TouchableOpacity
             className="mt-4 bg-emerald-500 px-5 py-3 rounded-xl"
-            onPress={fetchProduct}
+            onPress={() => fetchProduct(true)}
           >
             <Text className="text-white font-semibold">Reintentar</Text>
           </TouchableOpacity>
@@ -109,15 +235,15 @@ export default function ProductDetailScreen() {
         >
           <View className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-6">
             <View className="flex-row items-start">
-              <View className="w-16 h-16 rounded-2xl bg-emerald-50 items-center justify-center mr-4">
+              <View className="w-20 h-20 rounded-2xl bg-emerald-50 items-center justify-center mr-4">
                 {product.imatge_url ? (
                   <Image
                     source={{ uri: product.imatge_url }}
-                    className="w-16 h-16 rounded-2xl"
+                    className="w-20 h-20 rounded-2xl"
                     resizeMode="cover"
                   />
                 ) : (
-                  <Package color="#10B981" size={28} />
+                  <Package color="#10B981" size={34} />
                 )}
               </View>
 
@@ -153,6 +279,81 @@ export default function ProductDetailScreen() {
                 </View>
               </View>
             </View>
+
+            <View className="mt-3 pt-3 border-t border-gray-100">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-[14px] font-semibold text-gray-900">
+                  Modificar cantidad
+                </Text>
+
+                <View className="flex-row items-center">
+                  <TouchableOpacity
+                    className="w-9 h-9 rounded-lg items-center justify-center bg-gray-100"
+                    onPress={() => handleUpdateQuantity(-1)}
+                    onPressIn={() => startContinuousUpdate(-1)}
+                    onPressOut={stopContinuousUpdate}
+                    disabled={
+                      updatingQuantity ||
+                      deletingProduct ||
+                      (product.quantitat_stock ?? 0) <= 0
+                    }
+                  >
+                    {updatingQuantity ? (
+                      <ActivityIndicator size="small" color="#6B7280" />
+                    ) : (
+                      <Text className="text-[20px] font-bold text-gray-700">
+                        -
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+
+                  <View className="mx-3 min-w-[20px] items-center">
+                    <Text className="text-[18px] font-bold text-gray-900">
+                      {product.quantitat_stock}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    className={`w-9 h-9 rounded-lg items-center justify-center ${
+                      updatingQuantity || deletingProduct
+                        ? "bg-emerald-300"
+                        : "bg-emerald-500"
+                    }`}
+                    onPress={() => handleUpdateQuantity(1)}
+                    onPressIn={() => startContinuousUpdate(1)}
+                    onPressOut={stopContinuousUpdate}
+                    disabled={updatingQuantity || deletingProduct}
+                  >
+                    {updatingQuantity ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text className="text-[20px] font-bold text-white">
+                        +
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                className={`mt-3 h-10 rounded-lg flex-row items-center justify-center ${
+                  deletingProduct ? "bg-red-400" : "bg-red-500"
+                }`}
+                onPress={handleDeleteProduct}
+                disabled={deletingProduct || updatingQuantity}
+              >
+                {deletingProduct ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Trash2 color="#FFFFFF" size={16} />
+                    <Text className="text-white font-bold text-sm ml-2">
+                      Eliminar producto
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-6">
@@ -173,7 +374,10 @@ export default function ProductDetailScreen() {
             </Text>
 
             <View className="flex-row items-center mb-3">
-              <ShieldCheck color={product.es_privat ? "#D97706" : "#10B981"} size={18} />
+              <ShieldCheck
+                color={product.es_privat ? "#D97706" : "#10B981"}
+                size={18}
+              />
               <Text className="ml-2 text-base text-gray-900">
                 {product.es_privat ? "Producto privado" : "Producto compartido"}
               </Text>

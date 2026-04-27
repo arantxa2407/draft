@@ -10,6 +10,25 @@ const getToken = async (key: string) => {
   }
 };
 
+const deleteToken = async (key: string) => {
+  if (Platform.OS === "web") {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+};
+
+let onUnauthorized: (() => void) | null = null;
+
+export const setUnauthorizedHandler = (handler: (() => void) | null) => {
+  onUnauthorized = handler;
+};
+
+export const clearStoredSession = async () => {
+  await deleteToken("access_token");
+  await deleteToken("refresh_token");
+};
+
 const apiClient = axios.create({
   baseURL: "http://192.168.1.12:8000",
   timeout: 5000,
@@ -20,22 +39,35 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(async (config) => {
   const token = await getToken("access_token");
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+  async (error) => {
+    if (error?.response?.status === 401) {
+      await clearStoredSession();
+
+      if (onUnauthorized) {
+        onUnauthorized();
+      }
+
+      return Promise.reject("Sesión caducada. Inicia sesión de nuevo.");
+    }
+
+    if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
       return Promise.reject(
-        "El servidor tarda demasiado en responder. Inténtalo de nuevo.",
+        "El servidor tarda demasiado en responder. Inténtalo de nuevo."
       );
     }
+
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;
