@@ -1,5 +1,8 @@
+import { router } from "@/.expo/types/router";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Alert } from "react-native";
 import { authService } from "../services/authService";
+import { setUnauthorizedHandler } from "../services/client";
 import { homeService } from "../services/homeService";
 
 type AuthContextType = {
@@ -41,6 +44,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setSession(null);
+      setHasHome(false);
+
+      Alert.alert(
+        "Sesión caducada",
+        "Tu sesión ha expirado por seguridad. Por favor, inicia sesión de nuevo.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              router.replace("/");
+            },
+          },
+        ],
+      );
+    });
+
     checkSession();
   }, []);
 
