@@ -33,22 +33,46 @@ export type InventoryCategoryOption = {
 export type InventoryFilters = {
   search?: string;
   categoria?: string;
+  owner_user_id?: string;
   min_quantity?: number;
   max_quantity?: number;
   nutrition_score?: string;
   expiry_filter?: string;
 };
 
-export const inventoryService = {
-  getCategories: async () => {
-    try {
-      const response = await apiClient.get("/inventory/categories/all");
-      return response.data;
-    } catch (error: any) {
-      throw error.response?.data?.detail || "Error al cargar las categorías";
-    }
-  },
+export type InventoryNutrition = {
+  energy_kcal?: number | null;
+  fat?: number | null;
+  saturated_fat?: number | null;
+  carbohydrates?: number | null;
+  sugars?: number | null;
+  fiber?: number | null;
+  proteins?: number | null;
+  salt?: number | null;
+  sodium?: number | null;
+};
 
+export type InventoryProductDetail = {
+  id_producte: string;
+  nom: string;
+  marca?: string | null;
+  quantitat_stock: number;
+  quantitat_envas?: string | null;
+  categoria?: string | null;
+  data_caducitat?: string | null;
+  data_compra?: string | null;
+  preu?: string | null;
+  es_privat: boolean;
+  propietaris: InventoryOwner[];
+  estat_stock: string;
+  nutriscore?: string | null;
+  informacio_nutricional_100g_ml?: InventoryNutrition | null;
+  ingredients?: string | null;
+  allergens?: string | null;
+  imatge_url?: string | null;
+};
+
+export const inventoryService = {
   createManualProduct: async (productData: CreateProductData) => {
     try {
       const response = await apiClient.post("/inventory/manual", productData);
@@ -66,6 +90,7 @@ export const inventoryService = {
         params: {
           search: filters.search?.trim() || undefined,
           categoria: filters.categoria || undefined,
+          owner_user_id: filters.owner_user_id || undefined,
           min_quantity: filters.min_quantity,
           max_quantity: filters.max_quantity,
           nutrition_score: filters.nutrition_score || undefined,
@@ -73,7 +98,7 @@ export const inventoryService = {
         },
       });
 
-      return response.data?.products || [];
+      return response.data?.products || response.data?.productes || [];
     } catch (error: any) {
       throw error.response?.data?.detail || "No se pudo cargar el inventario";
     }
@@ -94,6 +119,18 @@ export const inventoryService = {
       return [];
     } catch {
       return [];
+    }
+  },
+  
+
+  getInventoryProductDetail: async (
+    productId: string
+  ): Promise<InventoryProductDetail> => {
+    try {
+      const response = await apiClient.get(`/inventory/${productId}`);
+      return response.data?.producte;
+    } catch (error: any) {
+      throw error.response?.data?.detail || "No se pudo cargar el producto";
     }
   },
 };

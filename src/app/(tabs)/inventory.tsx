@@ -1,14 +1,19 @@
-import { useFocusEffect } from "@react-navigation/native";
+import { router, useFocusEffect } from "expo-router";
 import {
+  CalendarDays,
   ChevronDown,
+  ChevronRight,
+  Lock,
   Package,
   Search,
   SlidersHorizontal,
+  Users,
   X,
 } from "lucide-react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -19,6 +24,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { authService } from "../../services/authService";
+import { homeService, type HomeMember } from "../../services/homeService";
 import {
   inventoryService,
   type InventoryCategoryOption,
@@ -35,9 +42,11 @@ const EXPIRY_OPTIONS = [
 export default function InventoryScreen() {
   const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [categories, setCategories] = useState<InventoryCategoryOption[]>([]);
+  const [members, setMembers] = useState<HomeMember[]>([]);
 
   const [search, setSearch] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [ownerUserId, setOwnerUserId] = useState("");
   const [minQuantity, setMinQuantity] = useState("");
   const [maxQuantity, setMaxQuantity] = useState("");
   const [nutritionScore, setNutritionScore] = useState("");
@@ -45,12 +54,32 @@ export default function InventoryScreen() {
 
   const [showFilters, setShowFilters] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showOwnerModal, setShowOwnerModal] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingMembers, setLoadingMembers] = useState(false);
   const [error, setError] = useState("");
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const result = await authService.verify();
+      const userId =
+        result?.user?.id ||
+        result?.user?.id_usuari ||
+        result?.user?.user_id ||
+        result?.id ||
+        null;
+
+      setCurrentUserId(userId ? String(userId) : null);
+    } catch {
+      setCurrentUserId(null);
+    }
+  };
 
   const fetchInventory = async (overrideSearch?: string) => {
     try {
@@ -60,6 +89,7 @@ export default function InventoryScreen() {
       const data = await inventoryService.getInventoryProducts({
         search: overrideSearch ?? search,
         categoria,
+        owner_user_id: ownerUserId || undefined,
         min_quantity: minQuantity ? Number(minQuantity) : undefined,
         max_quantity: maxQuantity ? Number(maxQuantity) : undefined,
         nutrition_score: nutritionScore || undefined,
@@ -86,10 +116,55 @@ export default function InventoryScreen() {
     }
   };
 
+  const extractMembers = (data: any): HomeMember[] => {
+    const candidates = [
+      data?.membres,
+      data?.members,
+      data?.home?.membres,
+      data?.home?.members,
+      data?.llar?.membres,
+      data?.llar?.members,
+      data?.data?.membres,
+      data?.data?.members,
+      data?.data?.home?.membres,
+      data?.data?.home?.members,
+      data?.data?.llar?.membres,
+      data?.data?.llar?.members,
+    ];
+
+    const rawMembers = candidates.find((item) => Array.isArray(item)) || [];
+
+    return rawMembers
+      .map((member: any) => ({
+        id_usuari: String(
+          member?.id_usuari ?? member?.id ?? member?.user_id ?? ""
+        ),
+        nom: String(
+          member?.nom ?? member?.name ?? member?.username ?? "Usuario"
+        ),
+      }))
+      .filter((member: HomeMember) => member.id_usuari);
+  };
+
+  const fetchMembers = async () => {
+    try {
+      setLoadingMembers(true);
+      const homeData = await homeService.getHome();
+      const parsedMembers = extractMembers(homeData);
+      setMembers(parsedMembers);
+    } catch {
+      setMembers([]);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
+      fetchCurrentUser();
       fetchInventory();
       fetchCategories();
+      fetchMembers();
     }, [])
   );
 
@@ -110,12 +185,14 @@ export default function InventoryScreen() {
   }, [search]);
 
   const applyFilters = () => {
+    setShowFilters(false);
     fetchInventory();
   };
 
   const clearFilters = async () => {
     setSearch("");
     setCategoria("");
+    setOwnerUserId("");
     setMinQuantity("");
     setMaxQuantity("");
     setNutritionScore("");
@@ -137,6 +214,7 @@ export default function InventoryScreen() {
 
   const activeFiltersCount =
     (categoria ? 1 : 0) +
+    (ownerUserId ? 1 : 0) +
     (minQuantity ? 1 : 0) +
     (maxQuantity ? 1 : 0) +
     (nutritionScore ? 1 : 0) +
@@ -144,42 +222,147 @@ export default function InventoryScreen() {
 
   const selectedCategoryLabel = categoria || "Todas las categorías";
 
-  const renderSubtitle = (product: InventoryProduct) => {
-    const parts = [];
+  const selectedOwnerLabel =
+    members.find((member) => String(member.id_usuari) === String(ownerUserId))
+      ?.nom || "Todos los usuarios";
 
-    if (product.categoria) parts.push(product.categoria);
-    parts.push(`Cantidad: ${product.quantitat}`);
+  const uniqueCategories = useMemo(() => {
+    const seen = new Set<string>();
+    return categories.filter((cat) => {
+      const key = `${cat.value}|${cat.label}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [categories]);
 
-    if (product.data_caducitat) {
-      parts.push(`Caduca: ${product.data_caducitat}`);
-    }
+  const uniqueMembers = useMemo(() => {
+    const seen = new Set<string>();
+    return members.filter((member) => {
+      const key = `${member.id_usuari}|${member.nom}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [members]);
 
-    return parts.join(" · ");
+  const isProductAccessible = (product: InventoryProduct) => {
+    if (!product.es_privat) return true;
+    if (!currentUserId) return false;
+
+    return product.propietaris.some(
+      (owner) => String(owner.id_usuari) === String(currentUserId)
+    );
   };
 
-  const renderItem = ({ item }: { item: InventoryProduct }) => (
-    <View className="bg-white rounded-2xl p-4 mb-3 border border-gray-100">
-      <View className="flex-row items-center">
-        <View className="w-12 h-12 rounded-xl bg-emerald-50 items-center justify-center mr-4">
-          <Package color="#10B981" size={22} />
+  const handleProductPress = (product: InventoryProduct) => {
+    if (isProductAccessible(product)) {
+      router.push({
+        pathname: "/product/[id]",
+        params: { id: product.id_producte },
+      });
+      return;
+    }
+
+    const owners =
+      product.propietaris.length > 0
+        ? product.propietaris.map((owner) => owner.nom).join(", ")
+        : "otro usuario";
+
+    Alert.alert(
+      "Producto privado",
+      `No puedes acceder a este producto porque es privado. Pertenece a: ${owners}.`
+    );
+  };
+
+  const renderPrivateInfo = (product: InventoryProduct) => {
+    if (!product.es_privat) {
+      return {
+        icon: <Users size={12} color="#059669" />,
+        text: "Compartido",
+        className:
+          "self-start flex-row items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5",
+        textClassName: "ml-1 text-[12px] font-semibold text-emerald-700",
+      };
+    }
+
+    const owners =
+      product.propietaris.length > 0
+        ? product.propietaris.map((owner) => owner.nom).join(", ")
+        : "Sin propietario";
+
+    return {
+      icon: <Lock size={12} color="#D97706" />,
+      text: `Privado · ${owners}`,
+      className:
+        "self-start flex-row items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5",
+      textClassName: "ml-1 text-[12px] font-semibold text-amber-700",
+    };
+  };
+
+  const renderItem = ({ item }: { item: InventoryProduct }) => {
+    const privacy = renderPrivateInfo(item);
+
+    return (
+      <TouchableOpacity
+        className="bg-white rounded-[18px] p-3 mb-3"
+        onPress={() => handleProductPress(item)}
+        activeOpacity={0.85}
+        style={{
+          shadowColor: "#000",
+          shadowOpacity: 0.02,
+          shadowRadius: 6,
+          shadowOffset: { width: 0, height: 2 },
+          elevation: 1,
+        }}
+      >
+        <View className="flex-row items-start">
+          <View className="w-12 h-12 rounded-[16px] bg-emerald-50 items-center justify-center mr-3">
+            <Package color="#10B981" size={20} />
+          </View>
+
+          <View className="flex-1">
+            <View className="flex-row items-start justify-between">
+              <Text className="text-[16px] font-bold text-slate-900 flex-1 pr-2">
+                {item.nom}
+              </Text>
+              <ChevronRight color="#9CA3AF" size={18} />
+            </View>
+
+            <View className="flex-row flex-wrap mt-1.5">
+              {item.categoria ? (
+                <View className="bg-slate-100 rounded-full px-2 py-0.5 mr-2 mb-1.5">
+                  <Text className="text-[12px] text-slate-700 font-medium">
+                    {item.categoria}
+                  </Text>
+                </View>
+              ) : null}
+
+              <View className="bg-slate-100 rounded-full px-2 py-0.5 mr-2 mb-1.5">
+                <Text className="text-[12px] text-slate-700 font-medium">
+                  Cantidad: {item.quantitat}
+                </Text>
+              </View>
+            </View>
+
+            {item.data_caducitat ? (
+              <View className="flex-row items-center mt-0.5 mb-2">
+                <CalendarDays size={14} color="#6B7280" />
+                <Text className="ml-1.5 text-[13px] text-slate-500">
+                  Caduca el {item.data_caducitat}
+                </Text>
+              </View>
+            ) : null}
+
+            <View className={privacy.className}>
+              {privacy.icon}
+              <Text className={privacy.textClassName}>{privacy.text}</Text>
+            </View>
+          </View>
         </View>
-
-        <View className="flex-1">
-          <Text className="text-base font-bold text-gray-900">{item.nom}</Text>
-
-          <Text className="text-sm text-gray-500 mt-1">
-            {renderSubtitle(item)}
-          </Text>
-
-          {item.es_privat ? (
-            <Text className="text-xs text-amber-600 mt-1 font-medium">
-              Producto privado
-            </Text>
-          ) : null}
-        </View>
-      </View>
-    </View>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const Chip = ({
     label,
@@ -267,6 +450,30 @@ export default function InventoryScreen() {
                     }
                   >
                     {selectedCategoryLabel}
+                  </Text>
+                  <ChevronDown color="#6B7280" size={20} />
+                </TouchableOpacity>
+              )}
+
+              <Text className="text-sm font-medium text-gray-900 mb-2">
+                Usuario propietario
+              </Text>
+
+              {loadingMembers ? (
+                <ActivityIndicator size="small" color="#10B981" />
+              ) : (
+                <TouchableOpacity
+                  className="h-12 px-4 rounded-xl bg-gray-100 flex-row items-center justify-between mb-3"
+                  onPress={() => setShowOwnerModal(true)}
+                >
+                  <Text
+                    className={
+                      ownerUserId
+                        ? "text-gray-900 text-base"
+                        : "text-gray-400 text-base"
+                    }
+                  >
+                    {selectedOwnerLabel}
                   </Text>
                   <ChevronDown color="#6B7280" size={20} />
                 </TouchableOpacity>
@@ -419,9 +626,9 @@ export default function InventoryScreen() {
                 </Text>
               </TouchableOpacity>
 
-              {categories.map((cat) => (
+              {uniqueCategories.map((cat, index) => (
                 <TouchableOpacity
-                  key={cat.value}
+                  key={`${cat.value}-${index}`}
                   className="py-3 border-b border-gray-100"
                   onPress={() => {
                     setCategoria(cat.label);
@@ -436,6 +643,59 @@ export default function InventoryScreen() {
                     }`}
                   >
                     {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      <Modal
+        visible={showOwnerModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowOwnerModal(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/30 justify-center px-6"
+          onPress={() => setShowOwnerModal(false)}
+        >
+          <Pressable className="bg-white rounded-2xl p-4 max-h-[70%]">
+            <Text className="text-lg font-bold text-gray-900 mb-4">
+              Selecciona un usuario
+            </Text>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <TouchableOpacity
+                className="py-3 border-b border-gray-100"
+                onPress={() => {
+                  setOwnerUserId("");
+                  setShowOwnerModal(false);
+                }}
+              >
+                <Text className="text-base text-gray-900">
+                  Todos los usuarios
+                </Text>
+              </TouchableOpacity>
+
+              {uniqueMembers.map((member, index) => (
+                <TouchableOpacity
+                  key={`${member.id_usuari}-${index}`}
+                  className="py-3 border-b border-gray-100"
+                  onPress={() => {
+                    setOwnerUserId(member.id_usuari);
+                    setShowOwnerModal(false);
+                  }}
+                >
+                  <Text
+                    className={`text-base ${
+                      ownerUserId === member.id_usuari
+                        ? "text-emerald-600 font-semibold"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {member.nom}
                   </Text>
                 </TouchableOpacity>
               ))}

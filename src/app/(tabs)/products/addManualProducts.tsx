@@ -68,24 +68,16 @@ export default function AddManualProductScreen() {
   );
 
   const loadCategories = async () => {
-    try {
-      const data = await inventoryService.getCategories();
-      if (Array.isArray(data)) {
-        setCategories(data);
-      } else if (data && Array.isArray(data.categories)) {
-        setCategories(data.categories);
-      } else if (data && Array.isArray(data.data)) {
-        setCategories(data.data);
-      } else {
-        setCategories([]);
-      }
-    } catch (error: any) {
-      Alert.alert("Error", error);
-      setCategories([]);
-    } finally {
-      setIsLoadingCategories(false);
-    }
-  };
+  try {
+    const data = await inventoryService.getCategories();
+    setCategories(data);
+  } catch (error: any) {
+    Alert.alert("Error", error);
+    setCategories([]);
+  } finally {
+    setIsLoadingCategories(false);
+  }
+};
 
   const handleSubmit = async () => {
     if (
