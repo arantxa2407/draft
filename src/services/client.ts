@@ -11,7 +11,7 @@ const getToken = async (key: string) => {
 };
 
 const apiClient = axios.create({
-  baseURL: "http://192.168.0.154:8000",
+  baseURL: "http://192.168.1.12:8000",
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",

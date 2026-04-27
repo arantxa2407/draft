@@ -1,7 +1,31 @@
 import apiClient from "./client";
 
+export type HomeMember = {
+  id_usuari: string;
+  nom: string;
+};
+
+export type HomeData = {
+  id_llar?: string;
+  nom?: string;
+  membres?: HomeMember[];
+  members?: HomeMember[];
+  home?: {
+    id_llar?: string;
+    nom?: string;
+    membres?: HomeMember[];
+    members?: HomeMember[];
+  };
+  llar?: {
+    id_llar?: string;
+    nom?: string;
+    membres?: HomeMember[];
+    members?: HomeMember[];
+  };
+};
+
 export const homeService = {
-  getHome: async () => {
+  getHome: async (): Promise<HomeData> => {
     try {
       const response = await apiClient.get("/home/");
       return response.data;
