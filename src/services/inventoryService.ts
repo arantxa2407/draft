@@ -83,10 +83,10 @@ export const inventoryService = {
   },
 
   getInventoryProducts: async (
-    filters: InventoryFilters = {}
+    filters: InventoryFilters = {},
   ): Promise<InventoryProduct[]> => {
     try {
-      const response = await apiClient.get("/inventory/products", {
+      const response = await apiClient.get("/inventory", {
         params: {
           search: filters.search?.trim() || undefined,
           categoria: filters.categoria || undefined,
@@ -121,10 +121,9 @@ export const inventoryService = {
       return [];
     }
   },
-  
 
   getInventoryProductDetail: async (
-    productId: string
+    productId: string,
   ): Promise<InventoryProductDetail> => {
     try {
       const response = await apiClient.get(`/inventory/${productId}`);
@@ -136,24 +135,24 @@ export const inventoryService = {
 
   updateProductQuantity: async (id_producte: string, modificacio: number) => {
     try {
-        const response = await apiClient.patch("/inventory_modify", {
+      const response = await apiClient.patch("/inventory_modify", {
         id_producte,
         modificacio,
-        });
-        return response.data;
+      });
+      return response.data;
     } catch (error: any) {
-        throw error.response?.data?.detail || "No se pudo modificar la cantidad";
+      throw error.response?.data?.detail || "No se pudo modificar la cantidad";
     }
-    },
+  },
 
   deleteProduct: async (id_producte: string) => {
     try {
-        const response = await apiClient.delete("/inventory_delete_product", {
+      const response = await apiClient.delete("/inventory_delete_product", {
         data: { id_producte },
-        });
-        return response.data;
+      });
+      return response.data;
     } catch (error: any) {
-        throw error.response?.data?.detail || "No se pudo eliminar el producto";
+      throw error.response?.data?.detail || "No se pudo eliminar el producto";
     }
-},
+  },
 };

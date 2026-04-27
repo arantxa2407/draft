@@ -2,6 +2,14 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import apiClient from "./client";
 
+const getToken = async (key: string) => {
+  if (Platform.OS === "web") {
+    return localStorage.getItem(key);
+  } else {
+    return await SecureStore.getItemAsync(key);
+  }
+};
+
 const setToken = async (key: string, value: string) => {
   if (Platform.OS === "web") {
     localStorage.setItem(key, value);
@@ -66,6 +74,28 @@ export const authService = {
     }
   },
 
+  refresh: async () => {
+    try {
+      const refreshToken = await getToken("refresh_token");
+      if (!refreshToken) throw new Error("No hay refresh token");
+
+      const response = await apiClient.post("/auth/refresh", {
+        refresh_token: refreshToken,
+      });
+
+      const { access_token, refresh_token: newRefreshToken } = response.data;
+
+      await setToken("access_token", access_token);
+      await setToken("refresh_token", newRefreshToken);
+
+      return access_token;
+    } catch (error) {
+      await deleteToken("access_token");
+      await deleteToken("refresh_token");
+      throw error;
+    }
+  },
+
   logout: async () => {
     try {
       await apiClient.post("/auth/logout");
@@ -83,5 +113,4 @@ export const authService = {
       await deleteToken("refresh_token");
     }
   },
-
 };
