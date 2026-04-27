@@ -1,5 +1,15 @@
 import apiClient from "./client";
 
+export interface CreateProductData {
+  nom: string;
+  categoria: string;
+  preu: number;
+  quantitat: number;
+  data_compra?: string;
+  data_caducitat?: string;
+  id_propietaris_privats?: string[];
+}
+
 export type InventoryOwner = {
   id_usuari: string;
   nom: string;
@@ -30,6 +40,24 @@ export type InventoryFilters = {
 };
 
 export const inventoryService = {
+  getCategories: async () => {
+    try {
+      const response = await apiClient.get("/inventory/categories/all");
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data?.detail || "Error al cargar las categorías";
+    }
+  },
+
+  createManualProduct: async (productData: CreateProductData) => {
+    try {
+      const response = await apiClient.post("/inventory/manual", productData);
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data?.detail || "Error al añadir el producto";
+    }
+  },
+
   getInventoryProducts: async (
     filters: InventoryFilters = {}
   ): Promise<InventoryProduct[]> => {
