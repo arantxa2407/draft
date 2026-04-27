@@ -84,6 +84,13 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="products/addManualProducts"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

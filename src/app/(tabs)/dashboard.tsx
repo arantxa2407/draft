@@ -127,7 +127,10 @@ export default function Dashboard() {
               Barras
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-1 bg-gray-50 p-4 rounded-3xl items-center border border-gray-100">
+          <TouchableOpacity
+            className="flex-1 bg-gray-50 p-4 rounded-3xl items-center border border-gray-100"
+            onPress={() => router.push("/products/addManualProducts")}
+          >
             <Plus size={24} color="#6B7280" />
             <Text className="text-gray-600 text-[10px] font-bold mt-2 text-center">
               Manual
