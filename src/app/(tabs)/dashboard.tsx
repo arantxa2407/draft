@@ -1,10 +1,8 @@
 import { router, useFocusEffect } from "expo-router";
 import {
   AlertCircle,
-  Bell,
   Camera,
   ChevronRight,
-  LogOut,
   Plus,
   ScanBarcode,
 } from "lucide-react-native";
@@ -40,10 +38,8 @@ const expiringItems = [
 ];
 
 export default function Dashboard() {
-  const handleLogout = () => {
-    router.replace("/");
-  };
-  // Bloquea el botón físico de Android mientras estemos en esta pantalla
+  const today = new Date();
+
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -67,26 +63,12 @@ export default function Dashboard() {
         <View>
           <Text className="text-2xl font-bold text-gray-900">Mi nevera</Text>
           <Text className="text-sm text-gray-500 font-medium">
-            Miércoles, 1 Abril
+            {today.toLocaleDateString("es-ES", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
           </Text>
-        </View>
-
-        <View className="flex-row items-center gap-3">
-          {/* Botón de Cerrar Sesión */}
-          <TouchableOpacity
-            onPress={handleLogout}
-            className="flex-row items-center gap-1.5 px-3 py-2.5 bg-red-50 rounded-xl border border-red-100"
-          >
-            <LogOut size={16} color="#DC2626" />
-            <Text className="text-red-600 font-bold text-xs">
-              Cerrar sesión
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity className="w-12 h-12 rounded-2xl bg-gray-50 items-center justify-center border border-gray-100">
-            <Bell size={24} color="#1F2937" />
-            <View className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
-          </TouchableOpacity>
         </View>
       </View>
 
