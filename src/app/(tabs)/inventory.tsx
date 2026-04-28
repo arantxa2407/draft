@@ -89,7 +89,7 @@ export default function InventoryScreen() {
 
   const fetchInventory = async (
     overrideSearch?: string,
-    showLoader: boolean = true
+    showLoader: boolean = true,
   ) => {
     try {
       if (showLoader) setLoading(true);
@@ -108,7 +108,7 @@ export default function InventoryScreen() {
       setProducts(data);
     } catch (err: any) {
       setError(
-        typeof err === "string" ? err : "No se pudo cargar el inventario"
+        typeof err === "string" ? err : "No se pudo cargar el inventario",
       );
     } finally {
       if (showLoader) setLoading(false);
@@ -146,10 +146,10 @@ export default function InventoryScreen() {
     return rawMembers
       .map((member: any) => ({
         id_usuari: String(
-          member?.id_usuari ?? member?.id ?? member?.user_id ?? ""
+          member?.id_usuari ?? member?.id ?? member?.user_id ?? "",
         ),
         nom: String(
-          member?.nom ?? member?.name ?? member?.username ?? "Usuario"
+          member?.nom ?? member?.name ?? member?.username ?? "Usuario",
         ),
       }))
       .filter((member: HomeMember) => member.id_usuari);
@@ -182,7 +182,7 @@ export default function InventoryScreen() {
       maxQuantity,
       nutritionScore,
       expiryFilter,
-    ])
+    ]),
   );
 
   useEffect(() => {
@@ -226,7 +226,7 @@ export default function InventoryScreen() {
       setProducts(data);
     } catch (err: any) {
       setError(
-        typeof err === "string" ? err : "No se pudo cargar el inventario"
+        typeof err === "string" ? err : "No se pudo cargar el inventario",
       );
     } finally {
       setLoading(false);
@@ -272,7 +272,7 @@ export default function InventoryScreen() {
     if (!currentUserId) return false;
 
     return product.propietaris.some(
-      (owner) => String(owner.id_usuari) === String(currentUserId)
+      (owner) => String(owner.id_usuari) === String(currentUserId),
     );
   };
 
@@ -292,7 +292,7 @@ export default function InventoryScreen() {
 
     Alert.alert(
       "Producto privado",
-      `No puedes acceder a este producto porque es privado. Pertenece a: ${owners}.`
+      `No puedes acceder a este producto porque es privado. Pertenece a: ${owners}.`,
     );
   };
 
@@ -417,11 +417,7 @@ export default function InventoryScreen() {
         </Text>
       </View>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 120 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-6 pt-4">
           <View className="bg-white border border-gray-200 rounded-2xl px-4 h-12 flex-row items-center">
             <Search color="#9CA3AF" size={18} />
@@ -534,9 +530,7 @@ export default function InventoryScreen() {
                     label={score}
                     selected={nutritionScore === score}
                     onPress={() =>
-                      setNutritionScore((prev) =>
-                        prev === score ? "" : score
-                      )
+                      setNutritionScore((prev) => (prev === score ? "" : score))
                     }
                   />
                 ))}
@@ -554,7 +548,7 @@ export default function InventoryScreen() {
                     selected={expiryFilter === option.value}
                     onPress={() =>
                       setExpiryFilter((prev) =>
-                        prev === option.value ? "" : option.value
+                        prev === option.value ? "" : option.value,
                       )
                     }
                   />

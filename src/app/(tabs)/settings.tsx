@@ -94,7 +94,7 @@ export default function SettingsScreen() {
             } catch (error) {
               Alert.alert(
                 "Error",
-                "No se pudo eliminar la cuenta. Inténtalo de nuevo."
+                "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
               );
             } finally {
               setIsLoading(false);
@@ -102,7 +102,7 @@ export default function SettingsScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -116,7 +116,7 @@ export default function SettingsScreen() {
       {/* Contenido principal scrolleable */}
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: 24 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Tarjeta de Perfil */}
@@ -246,12 +246,14 @@ export default function SettingsScreen() {
 
           {/* Botón de eliminar cuenta añadido */}
           <TouchableOpacity
-              className={`w-full flex-row items-center justify-center h-14 rounded-2xl ${
-                isLoading ? "bg-red-100 opacity-50" : "bg-red-50 active:bg-red-100"
-              }`}
-              onPress={handleDeleteAccount}
-              disabled={isLoading}
-            >
+            className={`w-full flex-row items-center justify-center h-14 rounded-2xl ${
+              isLoading
+                ? "bg-red-100 opacity-50"
+                : "bg-red-50 active:bg-red-100"
+            }`}
+            onPress={handleDeleteAccount}
+            disabled={isLoading}
+          >
             <Trash2 color="#ef4444" size={20} />
             <Text className="text-red-500 font-semibold text-base ml-2">
               {isLoading ? "Eliminando cuenta..." : "Eliminar cuenta"}

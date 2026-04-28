@@ -268,10 +268,10 @@ export default function BarcodeSummaryScreen() {
         </Text>
       </ScrollView>
 
-      {/* Botones de Acción - Hemos ajustado el padding bottom para que se peguen abajo */}
+      {/* Botones de Acción*/}
       <View
         className="px-6 pt-4 bg-white rounded-t-[32px] shadow-lg border-t border-gray-100"
-        style={{ paddingBottom: Math.max(insets.bottom + 10, 24) }} // Se ajusta al dispositivo
+        style={{ paddingBottom: Math.max(insets.bottom + 10, 24) }}
       >
         <TouchableOpacity
           onPress={handleConfirm}

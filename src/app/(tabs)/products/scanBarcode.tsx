@@ -90,103 +90,102 @@ export default function ScanBarcodeScreen() {
   return (
     <View className="flex-1 bg-black relative">
       <CameraView
-        style={{ flex: 1 }}
+        style={StyleSheet.absoluteFillObject}
         facing="back"
         onBarcodeScanned={isScanning ? undefined : handleBarcodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e"],
         }}
+      />
+      <View
+        style={StyleSheet.absoluteFill}
+        className="items-center justify-center pointer-events-none"
       >
         <View
-          style={StyleSheet.absoluteFill}
-          className="items-center justify-center pointer-events-none"
-        >
-          <View
-            style={{
-              position: "absolute",
-              width: MASK_SIZE,
-              height: MASK_SIZE,
-              borderWidth: BORDER_WIDTH,
-              borderRadius: OUTER_RADIUS,
-              borderColor: "rgba(0,0,0,0.6)",
-            }}
-          />
-
-          <View
-            style={{
-              width: HOLE_SIZE,
-              height: HOLE_SIZE,
-              borderWidth: 3,
-              borderColor: "white",
-              borderRadius: INNER_RADIUS,
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: "hidden",
-            }}
-          >
-            {!isScanning && (
-              <View className="w-full h-0.5 bg-emerald-500 shadow-[0_0_10px_#10B981]" />
-            )}
-          </View>
-
-          <View
-            className="absolute"
-            style={{ top: "50%", marginTop: HOLE_SIZE / 2 + 30 }}
-          >
-            <Text className="text-white text-[15px] font-medium text-center px-8 shadow-sm">
-              Col·loca el codi de barres a l&apos;interior del requadre.
-            </Text>
-          </View>
-        </View>
-
-        <SafeAreaView className="absolute top-0 w-full z-10 pointer-events-box-none">
-          <View className="flex-row items-center px-6 pt-2">
-            <TouchableOpacity
-              className="w-11 h-11 bg-white rounded-full items-center justify-center z-20 shadow-sm"
-              onPress={() => router.back()}
-              disabled={isScanning}
-            >
-              <X color="#1F2937" size={24} strokeWidth={2.5} />
-            </TouchableOpacity>
-
-            <View className="absolute left-0 right-0 items-center pointer-events-none mt-2">
-              <Text className="text-white font-bold text-[17px] tracking-wide shadow-sm">
-                Escanear Codi de barres
-              </Text>
-            </View>
-          </View>
-        </SafeAreaView>
+          style={{
+            position: "absolute",
+            width: MASK_SIZE,
+            height: MASK_SIZE,
+            borderWidth: BORDER_WIDTH,
+            borderRadius: OUTER_RADIUS,
+            borderColor: "rgba(0,0,0,0.6)",
+          }}
+        />
 
         <View
-          className="absolute bottom-0 w-full bg-white rounded-t-[32px] px-6 pt-8 z-10 shadow-xl"
-          style={{ paddingBottom: Math.max(insets.bottom + 20, 40) }}
+          style={{
+            width: HOLE_SIZE,
+            height: HOLE_SIZE,
+            borderWidth: 3,
+            borderColor: "white",
+            borderRadius: INNER_RADIUS,
+            justifyContent: "center",
+            alignItems: "center",
+            overflow: "hidden",
+          }}
         >
-          <TouchableOpacity
-            className="w-full h-[56px] bg-emerald-500 rounded-2xl flex-row items-center justify-center space-x-3 active:bg-emerald-600"
-            onPress={() => router.replace("/(tabs)/products/addManualProducts")}
-            disabled={isScanning}
-          >
-            <ScanBarcode color="#FFFFFF" size={22} strokeWidth={2.5} />
-            <Text className="text-white font-bold text-[17px] ml-2">
-              Introduir codi manualment
-            </Text>
-          </TouchableOpacity>
+          {!isScanning && (
+            <View className="w-full h-0.5 bg-emerald-500 shadow-[0_0_10px_#10B981]" />
+          )}
         </View>
 
-        {isScanning && (
-          <View className="absolute inset-0 bg-black/70 items-center justify-center z-50">
-            <View className="bg-white p-6 rounded-3xl items-center shadow-xl w-64">
-              <ActivityIndicator size="large" color="#10B981" />
-              <Text className="text-gray-900 font-bold mt-4 text-lg">
-                Cercant...
-              </Text>
-              <Text className="text-gray-500 text-sm mt-1 text-center">
-                Consultant la base de dades
-              </Text>
-            </View>
+        <View
+          className="absolute"
+          style={{ top: "50%", marginTop: HOLE_SIZE / 2 + 30 }}
+        >
+          <Text className="text-white text-[15px] font-medium text-center px-8 shadow-sm">
+            Col·loca el codi de barres a l&apos;interior del requadre.
+          </Text>
+        </View>
+      </View>
+
+      <SafeAreaView className="absolute top-0 w-full z-10 pointer-events-box-none">
+        <View className="flex-row items-center px-6 pt-2">
+          <TouchableOpacity
+            className="w-11 h-11 bg-white rounded-full items-center justify-center z-20 shadow-sm"
+            onPress={() => router.back()}
+            disabled={isScanning}
+          >
+            <X color="#1F2937" size={24} strokeWidth={2.5} />
+          </TouchableOpacity>
+
+          <View className="absolute left-0 right-0 items-center pointer-events-none mt-2">
+            <Text className="text-white font-bold text-[17px] tracking-wide shadow-sm">
+              Escanear Codi de barres
+            </Text>
           </View>
-        )}
-      </CameraView>
+        </View>
+      </SafeAreaView>
+
+      <View
+        className="absolute bottom-0 w-full bg-white rounded-t-[32px] px-6 pt-8 z-10 shadow-xl"
+        style={{ paddingBottom: Math.max(insets.bottom + 20, 40) }}
+      >
+        <TouchableOpacity
+          className="w-full h-[56px] bg-emerald-500 rounded-2xl flex-row items-center justify-center space-x-3 active:bg-emerald-600"
+          onPress={() => router.replace("/(tabs)/products/addManualProducts")}
+          disabled={isScanning}
+        >
+          <ScanBarcode color="#FFFFFF" size={22} strokeWidth={2.5} />
+          <Text className="text-white font-bold text-[17px] ml-2">
+            Introduir codi manualment
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {isScanning && (
+        <View className="absolute inset-0 bg-black/70 items-center justify-center z-50">
+          <View className="bg-white p-6 rounded-3xl items-center shadow-xl w-64">
+            <ActivityIndicator size="large" color="#10B981" />
+            <Text className="text-gray-900 font-bold mt-4 text-lg">
+              Cercant...
+            </Text>
+            <Text className="text-gray-500 text-sm mt-1 text-center">
+              Consultant la base de dades
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
