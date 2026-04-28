@@ -24,25 +24,25 @@ export default function OnboardingScreen() {
           FoodSync
         </Text>
         <Text className="text-xl text-gray-500 text-center mb-10">
-          Gestión inteligente de neveras y compras
+          Gestió intel·ligent de neveres i compres
         </Text>
 
         {/* FeatureItem is a component for displaying features */}
         <View className="w-full max-w-sm mb-8 gap-y-6">
           <FeatureItem
             icon={<TrendingDown color="#10B981" size={30} />}
-            title="Reduce el desperdicio alimentario"
-            description="Controla las fechas de caducidad y recibe alertas antes de que los alimentos se echen a perder"
+            title="Redueix el malbaratament alimentari"
+            description="Controla les dates de caducitat i rep alertes abans que els aliments es facin malbé"
           />
           <FeatureItem
             icon={<Refrigerator color="#10B981" size={30} />}
-            title="Inventario Inteligente"
-            description="Escanea recibos para añadir automáticamente los alimentos en tu nevera"
+            title="Inventari intel·ligent"
+            description="Escaneja tiquets per afegir automàticament els aliments a la teva nevera"
           />
           <FeatureItem
             icon={<Leaf color="#10B981" size={30} />}
-            title="Hogares compartidos"
-            description="Gestionad juntos vuestras compras y dividid vuestros gastos "
+            title="Llars compartides"
+            description="Gestioneu junts les vostres compres i dividiu les despeses "
           />
         </View>
       </View>
@@ -53,7 +53,7 @@ export default function OnboardingScreen() {
           className="w-96 h-12 rounded-full bg-emerald-500 flex items-center justify-center active:bg-emerald-600"
           onPress={() => router.push("/(auth)/register")}
         >
-          <Text className="text-white text-lg font-semibold">Crear cuenta</Text>
+          <Text className="text-white text-lg font-semibold">Crear compte</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -61,7 +61,7 @@ export default function OnboardingScreen() {
           onPress={() => router.push("/(auth)/login")}
         >
           <Text className="text-gray-900 text-lg font-semibold">
-            Iniciar sesión
+            Iniciar sessió
           </Text>
         </TouchableOpacity>
       </View>

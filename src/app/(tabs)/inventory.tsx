@@ -40,9 +40,9 @@ import {
 
 const NUTRITION_OPTIONS = ["A", "B", "C", "D", "E"];
 const EXPIRY_OPTIONS = [
-  { label: "Próximos", value: "expiring_soon" },
-  { label: "Caducados", value: "expired" },
-  { label: "OK", value: "ok" },
+  { label: "Proxims", value: "expiring_soon" },
+  { label: "Caducats", value: "expired" },
+  { label: "Frescs", value: "ok" },
 ];
 
 export default function InventoryScreen() {
@@ -108,7 +108,7 @@ export default function InventoryScreen() {
       setProducts(data);
     } catch (err: any) {
       setError(
-        typeof err === "string" ? err : "No se pudo cargar el inventario",
+        typeof err === "string" ? err : "No s'ha pogut carregar l'inventari",
       );
     } finally {
       if (showLoader) setLoading(false);
@@ -149,7 +149,7 @@ export default function InventoryScreen() {
           member?.id_usuari ?? member?.id ?? member?.user_id ?? "",
         ),
         nom: String(
-          member?.nom ?? member?.name ?? member?.username ?? "Usuario",
+          member?.nom ?? member?.name ?? member?.username ?? "Usuari",
         ),
       }))
       .filter((member: HomeMember) => member.id_usuari);
@@ -226,7 +226,7 @@ export default function InventoryScreen() {
       setProducts(data);
     } catch (err: any) {
       setError(
-        typeof err === "string" ? err : "No se pudo cargar el inventario",
+        typeof err === "string" ? err : "No s'ha pogut carregar l'inventari",
       );
     } finally {
       setLoading(false);
@@ -241,11 +241,11 @@ export default function InventoryScreen() {
     (nutritionScore ? 1 : 0) +
     (expiryFilter ? 1 : 0);
 
-  const selectedCategoryLabel = categoria || "Todas las categorías";
+  const selectedCategoryLabel = categoria || "Totes les categories";
 
   const selectedOwnerLabel =
     members.find((member) => String(member.id_usuari) === String(ownerUserId))
-      ?.nom || "Todos los usuarios";
+      ?.nom || "Tots els usuaris";
 
   const uniqueCategories = useMemo(() => {
     const seen = new Set<string>();
@@ -288,11 +288,11 @@ export default function InventoryScreen() {
     const owners =
       product.propietaris.length > 0
         ? product.propietaris.map((owner) => owner.nom).join(", ")
-        : "otro usuario";
+        : "altre usuari";
 
     Alert.alert(
-      "Producto privado",
-      `No puedes acceder a este producto porque es privado. Pertenece a: ${owners}.`,
+      "Producte privat",
+      `No pots accedir a aquest producte perquè és privat. Pertany a: ${owners}.`,
     );
   };
 
@@ -300,7 +300,7 @@ export default function InventoryScreen() {
     if (!product.es_privat) {
       return {
         icon: <Users size={12} color="#059669" />,
-        text: "Compartido",
+        text: "Compartit",
         className:
           "self-start flex-row items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5",
         textClassName: "ml-1 text-[12px] font-semibold text-emerald-700",
@@ -310,11 +310,11 @@ export default function InventoryScreen() {
     const owners =
       product.propietaris.length > 0
         ? product.propietaris.map((owner) => owner.nom).join(", ")
-        : "Sin propietario";
+        : "Sense propietari";
 
     return {
       icon: <Lock size={12} color="#D97706" />,
-      text: `Privado · ${owners}`,
+      text: `Privat · ${owners}`,
       className:
         "self-start flex-row items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5",
       textClassName: "ml-1 text-[12px] font-semibold text-amber-700",
@@ -361,7 +361,7 @@ export default function InventoryScreen() {
 
               <View className="bg-slate-100 rounded-full px-2 py-0.5 mr-2 mb-1.5">
                 <Text className="text-[12px] text-slate-700 font-medium">
-                  Cantidad: {item.quantitat}
+                  Quantitat: {item.quantitat}
                 </Text>
               </View>
             </View>
@@ -411,9 +411,9 @@ export default function InventoryScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
       <View className="px-6 pt-6 pb-4 bg-white border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900">Inventario</Text>
+        <Text className="text-2xl font-bold text-gray-900">Inventari</Text>
         <Text className="text-sm text-gray-500 mt-1">
-          Consulta todos los productos de tu hogar
+          Consulta tots els produtes de la teva llar
         </Text>
       </View>
 
@@ -424,7 +424,7 @@ export default function InventoryScreen() {
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder="Buscar producto..."
+              placeholder="Buscar producte..."
               placeholderTextColor="#9CA3AF"
               className="flex-1 ml-3 text-base text-gray-900"
             />
@@ -441,7 +441,7 @@ export default function InventoryScreen() {
           >
             <SlidersHorizontal color="#4B5563" size={18} />
             <Text className="ml-2 text-gray-700 font-medium">
-              {showFilters ? "Ocultar filtros" : "Mostrar filtros"}
+              {showFilters ? "Ocultar filtres" : "Mostrar filtres"}
               {activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ""}
             </Text>
           </TouchableOpacity>
@@ -449,7 +449,7 @@ export default function InventoryScreen() {
           {showFilters ? (
             <View className="mt-3 bg-white border border-gray-200 rounded-2xl p-4">
               <Text className="text-sm font-medium text-gray-900 mb-2">
-                Categoría
+                Categoria
               </Text>
 
               {loadingCategories ? (
@@ -473,7 +473,7 @@ export default function InventoryScreen() {
               )}
 
               <Text className="text-sm font-medium text-gray-900 mb-2">
-                Usuario propietario
+                Usuari propietari
               </Text>
 
               {loadingMembers ? (
@@ -537,7 +537,7 @@ export default function InventoryScreen() {
               </View>
 
               <Text className="text-sm font-medium text-gray-900 mb-2">
-                Proximidad de caducidad
+                Proximitat de caducitat
               </Text>
 
               <View className="flex-row flex-wrap">
@@ -567,7 +567,7 @@ export default function InventoryScreen() {
                   className="flex-1 h-11 bg-gray-200 rounded-xl items-center justify-center ml-2"
                   onPress={clearFilters}
                 >
-                  <Text className="text-gray-700 font-semibold">Limpiar</Text>
+                  <Text className="text-gray-700 font-semibold">Netejar</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -578,7 +578,7 @@ export default function InventoryScreen() {
           {loading ? (
             <View className="items-center justify-center py-16">
               <ActivityIndicator size="large" color="#10B981" />
-              <Text className="text-gray-500 mt-4">Cargando inventario...</Text>
+              <Text className="text-gray-500 mt-4">Carregant inventari...</Text>
             </View>
           ) : error ? (
             <View className="items-center justify-center px-6 py-16">
@@ -598,10 +598,10 @@ export default function InventoryScreen() {
                 <Package color="#10B981" size={30} />
               </View>
               <Text className="text-lg font-bold text-gray-900 mb-2">
-                No hay productos
+                No hi ha productes
               </Text>
               <Text className="text-gray-500 text-center">
-                No se encontraron productos con esos filtros.
+                No s&apos;han trobat productes amb aquests filtres.
               </Text>
             </View>
           ) : (
@@ -627,7 +627,7 @@ export default function InventoryScreen() {
         >
           <Pressable className="bg-white rounded-2xl p-4 max-h-[70%]">
             <Text className="text-lg font-bold text-gray-900 mb-4">
-              Selecciona una categoría
+              Selecciona una categoria
             </Text>
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -639,7 +639,7 @@ export default function InventoryScreen() {
                 }}
               >
                 <Text className="text-base text-gray-900">
-                  Todas las categorías
+                  Totes les categories
                 </Text>
               </TouchableOpacity>
 
@@ -680,7 +680,7 @@ export default function InventoryScreen() {
         >
           <Pressable className="bg-white rounded-2xl p-4 max-h-[70%]">
             <Text className="text-lg font-bold text-gray-900 mb-4">
-              Selecciona un usuario
+              Selecciona un usuari
             </Text>
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -692,7 +692,7 @@ export default function InventoryScreen() {
                 }}
               >
                 <Text className="text-base text-gray-900">
-                  Todos los usuarios
+                  Tots els usuaris
                 </Text>
               </TouchableOpacity>
 

@@ -37,7 +37,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: "Home",
+          title: "Menú",
           href: hasHome ? "/(tabs)/dashboard" : null,
           tabBarIcon: ({ color, focused }) => (
             <Home color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
@@ -48,7 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="inventory"
         options={{
-          title: "Inventory",
+          title: "Inventari",
           href: hasHome ? "/(tabs)/inventory" : null,
           tabBarIcon: ({ color, focused }) => (
             <Package color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
@@ -59,7 +59,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="household"
         options={{
-          title: "Household",
+          title: "Llar",
           tabBarIcon: ({ color, focused }) => (
             <Users color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
           ),
@@ -69,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: "Configuració",
           tabBarIcon: ({ color, focused }) => (
             <Settings color={color} size={24} strokeWidth={focused ? 2.5 : 2} />
           ),

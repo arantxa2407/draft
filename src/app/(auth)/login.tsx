@@ -40,7 +40,7 @@ export default function LoginScreen() {
 
   const handleEmailEndEditing = (text: string) => {
     if (!isValidEmail(text)) {
-      setEmailError("Correo no válido");
+      setEmailError("Correu no vàlid");
     } else {
       setEmailError("");
     }
@@ -55,7 +55,7 @@ export default function LoginScreen() {
 
   const handlePasswordEndEditing = (text: string) => {
     if (!isValidPassword(text)) {
-      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+      setPasswordError("La contrasenya ha de tenir almenys 6 caràcters");
     } else {
       setPasswordError("");
     }
@@ -69,11 +69,11 @@ export default function LoginScreen() {
     let isValid = true;
 
     if (!isValidEmail(email)) {
-      setEmailError("Correo no válido");
+      setEmailError("Correu no vàlid");
       isValid = false;
     }
     if (!isValidPassword(password)) {
-      setPasswordError("Revisa tu contraseña");
+      setPasswordError("Revisa la teva contrasenya");
       isValid = false;
     }
 
@@ -86,7 +86,7 @@ export default function LoginScreen() {
       await checkSession();
     } catch (error: any) {
       if (Platform.OS !== "web") {
-        Alert.alert("Error de inicio de sesión", error);
+        Alert.alert("Error de inici de sessió", error);
       }
     } finally {
       setIsLoading(false);
@@ -115,17 +115,17 @@ export default function LoginScreen() {
         {/* Contenido Principal */}
         <View className="flex-1 px-6 pt-4">
           <Text className="text-3xl font-bold mb-2 text-gray-900">
-            Bienvenido de nuevo
+            Benvingut de nou
           </Text>
           <Text className="text-gray-500 mb-8">
-            Inicia sesión en tu cuenta de FoodSync para continuar
+            Inicia sessió en la teva compte de FoodSync per continuar
           </Text>
 
           <View className="space-y-5">
             {/* Input: Email */}
             <View className="space-y-2">
               <Text className="font-medium text-gray-900">
-                Correo electrónico
+                Correu electrònic
               </Text>
               <TextInput
                 value={email}
@@ -134,7 +134,7 @@ export default function LoginScreen() {
                   if (emailError) setEmailError("");
                 }}
                 onEndEditing={(e) => handleEmailEndEditing(e.nativeEvent.text)}
-                placeholder="correo@email.com"
+                placeholder="correu@email.com"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -151,10 +151,10 @@ export default function LoginScreen() {
             {/* Input: Password */}
             <View className="space-y-2 mt-4">
               <View className="flex-row justify-between items-center">
-                <Text className="font-medium text-gray-900">Contraseña</Text>
+                <Text className="font-medium text-gray-900">Contrasenya</Text>
                 <TouchableOpacity>
                   <Text className="text-sm font-medium text-emerald-500">
-                    ¿Olvidaste tu contraseña?
+                    Has oblidat la contrasenya?
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -170,7 +170,7 @@ export default function LoginScreen() {
                   onEndEditing={(e) =>
                     handlePasswordEndEditing(e.nativeEvent.text)
                   }
-                  placeholder="Introduce tu contraseña"
+                  placeholder="Introdueix la teva contrasenya"
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -217,18 +217,18 @@ export default function LoginScreen() {
               disabled={isLoading}
             >
               <Text className="text-white text-base font-bold">
-                {isLoading ? "Iniciando..." : "Iniciar sesión"}
+                {isLoading ? "Iniciant sessió..." : "Iniciar sessió"}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Enlace al Registro */}
           <View className="mt-6 flex-row justify-center items-center pb-8">
-            <Text className="text-gray-500">¿No tienes cuenta? </Text>
+            <Text className="text-gray-500">No tens compte? </Text>
             <TouchableOpacity
               onPress={() => router.replace("/(auth)/register")}
             >
-              <Text className="text-emerald-500 font-bold">Regístrate</Text>
+              <Text className="text-emerald-500 font-bold">Regístrat</Text>
             </TouchableOpacity>
           </View>
         </View>

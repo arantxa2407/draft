@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
-import { ScanBarcode, X } from "lucide-react-native";
+import { Edit3, ScanBarcode, X } from "lucide-react-native";
 import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -166,9 +166,9 @@ export default function ScanBarcodeScreen() {
           onPress={() => router.replace("/(tabs)/products/addManualProducts")}
           disabled={isScanning}
         >
-          <ScanBarcode color="#FFFFFF" size={22} strokeWidth={2.5} />
+          <Edit3 color="#FFFFFF" size={22} strokeWidth={2.5} />
           <Text className="text-white font-bold text-[17px] ml-2">
-            Introduir codi manualment
+            Introduir producte manualment
           </Text>
         </TouchableOpacity>
       </View>

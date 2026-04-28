@@ -81,8 +81,8 @@ export default function AddManualProductScreen() {
       !purchaseDate
     ) {
       Alert.alert(
-        "Campos incompletos",
-        "Por favor, rellena los campos obligatorios.",
+        "Camps incomplets",
+        "Si us plau, omple els camps obligatoris.",
       );
       return;
     }
@@ -91,12 +91,15 @@ export default function AddManualProductScreen() {
     const parsedQuantity = parseInt(quantity, 10);
 
     if (isNaN(parsedPrice) || parsedPrice < 0) {
-      Alert.alert("Precio inválido", "El precio debe ser un número positivo.");
+      Alert.alert("Preu invàlid", "El preu ha de ser un número positiu.");
       return;
     }
 
     if (isNaN(parsedQuantity) || parsedQuantity <= 0 || parsedQuantity > 99) {
-      Alert.alert("Cantidad inválida", "La cantidad debe estar entre 1 y 99.");
+      Alert.alert(
+        "Quantitat invàlida",
+        "La quantitat ha d'estar entre 1 i 99.",
+      );
       return;
     }
 
@@ -194,16 +197,16 @@ export default function AddManualProductScreen() {
         <View className="px-6 space-y-6">
           <View className="items-left gap-2 my-4">
             <Text className="text-2xl font-bold text-gray-900 ">
-              Añade producto manualmente
+              Afegeix el producte manualment
             </Text>
             <Text className="text-sm text-gray-500 font-medium">
-              Añade los detalles del producto.
+              Afegeix els detalls del producte.
             </Text>
           </View>
 
           <View className="space-y-2">
             <Text className="font-medium text-gray-900 mb-2">
-              Nombre del producto <Text className="text-red-500">*</Text>
+              Nom del producte <Text className="text-red-500">*</Text>
             </Text>
             <TextInput
               className="h-14 px-4 rounded-2xl bg-white border border-gray-200 text-base shadow-sm"
@@ -227,7 +230,9 @@ export default function AddManualProductScreen() {
               >
                 <View className="flex-row items-center">
                   {isLoadingCategories ? (
-                    <Text className="text-gray-400 text-base">Cargando...</Text>
+                    <Text className="text-gray-400 text-base">
+                      Carregant...
+                    </Text>
                   ) : (
                     <Text
                       className={`text-base pr-2 ${selectedCategory ? "text-gray-900" : "text-gray-400"}`}
@@ -249,7 +254,7 @@ export default function AddManualProductScreen() {
 
             <View className="flex-1 space-y-2">
               <Text className="font-medium text-gray-900 mb-2">
-                Precio (€) <Text className="text-red-500">*</Text>
+                Preu (€) <Text className="text-red-500">*</Text>
               </Text>
               <TextInput
                 className="h-14 px-4 rounded-2xl bg-white border border-gray-200 text-base shadow-sm"
@@ -264,7 +269,7 @@ export default function AddManualProductScreen() {
           <View className="flex-row gap-4 mt-4">
             <View className="flex-1 space-y-2">
               <Text className="font-medium text-gray-900 mb-2">
-                Cantidad <Text className="text-red-500">*</Text>
+                Quantitat <Text className="text-red-500">*</Text>
               </Text>
               <TextInput
                 className="h-14 px-4 rounded-2xl bg-white border border-gray-200 text-base shadow-sm"
@@ -278,7 +283,7 @@ export default function AddManualProductScreen() {
 
             <View className="flex-1">
               <DatePickerField
-                label="Fecha Compra"
+                label="Data de compra"
                 value={purchaseDate}
                 onChange={setPurchaseDate}
                 placeholder="Opcional"
@@ -297,7 +302,7 @@ export default function AddManualProductScreen() {
                   <Square color="#9CA3AF" size={20} />
                 )}
                 <Text className="ml-2 text-sm text-gray-700 font-medium">
-                  Comprado hoy
+                  Comprat avui
                 </Text>
               </TouchableOpacity>
             </View>
@@ -306,10 +311,10 @@ export default function AddManualProductScreen() {
           <View className="flex-row gap-4 mt-4">
             <View className="flex-1">
               <DatePickerField
-                label="Fecha Caducidad"
+                label="Data de caducitat"
                 value={expirationDate}
                 onChange={setExpirationDate}
-                placeholder="Sin caducidad (Opcional)"
+                placeholder="Sense caducitat (Opcional)"
                 minimumDate={today}
               />
             </View>
@@ -328,7 +333,7 @@ export default function AddManualProductScreen() {
               </View>
               <View className="flex-1 pr-4">
                 <Text className="text-base font-bold text-gray-900">
-                  Producto privado
+                  Producte privat
                 </Text>
               </View>
             </View>
@@ -354,7 +359,7 @@ export default function AddManualProductScreen() {
               <ActivityIndicator color="white" />
             ) : (
               <Text className="text-white text-lg font-bold">
-                Guardar producto
+                Guardar producte
               </Text>
             )}
           </TouchableOpacity>

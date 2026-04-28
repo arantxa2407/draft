@@ -18,7 +18,7 @@ export default function DatePickerField({
   label,
   value,
   onChange,
-  placeholder = "Seleccionar fecha",
+  placeholder = "Seleccionar data",
   minimumDate,
   maximumDate,
   disabled = false,

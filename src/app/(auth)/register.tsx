@@ -51,7 +51,7 @@ export default function RegisterScreen() {
 
   const handleNameEndEditing = (text: string) => {
     if (!isValidName(text)) {
-      setNameError("El nombre debe tener entre 2 y 16 caracteres");
+      setNameError("El nom ha de tenir entre 2 i 16 caràcters");
     } else {
       setNameError("");
     }
@@ -78,7 +78,7 @@ export default function RegisterScreen() {
 
   const handleEmailEndEditing = (text: string) => {
     if (!isValidEmail(text)) {
-      setEmailError("Correo no válido");
+      setEmailError("Correu no vàlid");
     } else {
       setEmailError("");
     }
@@ -112,19 +112,19 @@ export default function RegisterScreen() {
     const checks = getPasswordChecks(pass);
 
     if (!checks.length) {
-      return "Debe tener entre 6 y 32 caracteres";
+      return "Ha de tenir entre 6 i 32 caràcters";
     }
     if (!checks.upper) {
-      return "Debe contener al menos una mayúscula";
+      return "Ha de contenir almenys una majúscula";
     }
     if (!checks.lower) {
-      return "Debe contener al menos una minúscula";
+      return "Ha de contenir almenys una minúscula";
     }
     if (!checks.number) {
-      return "Debe contener un número";
+      return "Ha de contenir un número";
     }
     if (!checks.special) {
-      return "Debe contener un carácter especial (!@#$%^&*()-+)";
+      return "Ha de contenir un caràcter especial (!@#$%^&*()-+)";
     }
 
     return "";
@@ -139,7 +139,9 @@ export default function RegisterScreen() {
   const handleConfirmPasswordEndEditing = (text: string) => {
     setConfirmPasswordStarted(true);
     if (text === "" || text !== password) {
-      setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
+      setConfirmPasswordError(
+        "Les contrasenyes no coincideixen o estan buides",
+      );
     } else {
       setConfirmPasswordError("");
     }
@@ -157,7 +159,7 @@ export default function RegisterScreen() {
 
     const nameValid = isValidName(trimmedName);
     if (!nameValid) {
-      setNameError("El nombre debe tener entre 2 y 16 caracteres");
+      setNameError("El nom ha de tenir entre 2 i 16 caràcters");
       isValid = false;
     } else {
       setNameError("");
@@ -165,7 +167,7 @@ export default function RegisterScreen() {
 
     const emailValid = isValidEmail(trimmedEmail);
     if (!emailValid) {
-      setEmailError("Correo no válido");
+      setEmailError("Correu no vàlid");
       isValid = false;
     } else {
       setEmailError("");
@@ -183,20 +185,22 @@ export default function RegisterScreen() {
     setConfirmPasswordStarted(true);
     const passwordsMatch = password === confirmPassword && password.length > 0;
     if (!passwordsMatch) {
-      setConfirmPasswordError("Las contraseñas no coinciden o están vacías");
+      setConfirmPasswordError(
+        "Les contrasenyes no coincideixen o estan buides",
+      );
       isValid = false;
     } else {
       setConfirmPasswordError("");
     }
 
     const errorMessage =
-      "Error en el registro. Por favor, corrige los errores antes de registrarte.";
+      "Error en el registre. Si us plau, corregeix els errors abans de registrar-te.";
 
     if (!isValid) {
       if (Platform.OS === "web") {
         window.alert(errorMessage);
       } else {
-        Alert.alert("Error en el registro", errorMessage);
+        Alert.alert("Error al registre", errorMessage);
       }
       return;
     }
@@ -213,12 +217,12 @@ export default function RegisterScreen() {
       await checkSession();
 
       const finalMessage =
-        data?.message || "Tu cuenta ha sido creada correctamente.";
+        data?.message || "El teu compte s'ha creat correctament.";
 
       if (Platform.OS === "web") {
         window.alert(finalMessage);
       } else {
-        Alert.alert("¡Registro Exitoso!", finalMessage, [
+        Alert.alert("¡Registre completat!", finalMessage, [
           {
             text: "Continuar",
           },
@@ -228,7 +232,7 @@ export default function RegisterScreen() {
       const message =
         typeof error === "string"
           ? error
-          : error?.message || "Error al crear la cuenta";
+          : error?.message || "Error en crear el compte";
 
       const lowerMessage = message.toLowerCase();
 
@@ -251,7 +255,7 @@ export default function RegisterScreen() {
         if (Platform.OS === "web") {
           window.alert(message);
         } else {
-          Alert.alert("Error en el registro", message);
+          Alert.alert("Error en el registre", message);
         }
       }
     } finally {
@@ -301,16 +305,16 @@ export default function RegisterScreen() {
         {/* Contenido Principal */}
         <View className="flex-1 px-6 pt-4">
           <Text className="text-3xl font-bold mb-2 text-gray-900">
-            Crear una cuenta
+            Crear un compte
           </Text>
           <Text className="text-gray-500 mb-8">
-            Comienza a reducir el desperdicio de alimentos hoy
+            Comença a reduir el malbaratament alimentari avui
           </Text>
 
           <View className="space-y-5">
             {/* Input: Full Name */}
             <View className="space-y-2">
-              <Text className="font-medium text-gray-900">Nombre completo</Text>
+              <Text className="font-medium text-gray-900">Nom complet</Text>
               <TextInput
                 value={name}
                 onChangeText={(text) => {
@@ -335,7 +339,9 @@ export default function RegisterScreen() {
 
             {/* Input: Email */}
             <View className="space-y-2 mt-4">
-              <Text className="font-medium text-gray-900">Correo</Text>
+              <Text className="font-medium text-gray-900">
+                Correu electrònic
+              </Text>
               <TextInput
                 value={email}
                 onChangeText={(text) => {
@@ -343,7 +349,7 @@ export default function RegisterScreen() {
                   if (emailError && isValidEmail(text)) setEmailError("");
                 }}
                 onEndEditing={(e) => handleEmailEndEditing(e.nativeEvent.text)}
-                placeholder="correo@email.com"
+                placeholder="correu@email.com"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -364,7 +370,7 @@ export default function RegisterScreen() {
 
             {/* Input: Password */}
             <View className="space-y-2 mt-4">
-              <Text className="font-medium text-gray-900">Contraseña</Text>
+              <Text className="font-medium text-gray-900">Contrasenya</Text>
               {/* Contenedor ojo */}
               <View className="justify-center align-middle">
                 <TextInput
@@ -377,7 +383,7 @@ export default function RegisterScreen() {
                   onEndEditing={(e) =>
                     handlePasswordEndEditing(e.nativeEvent.text)
                   }
-                  placeholder="Crea una contraseña"
+                  placeholder="Crea una contrasenya"
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
@@ -410,23 +416,23 @@ export default function RegisterScreen() {
                 <View className="mt-2 space-y-1">
                   <PasswordItem
                     isValid={checks.length}
-                    text="Debe tener entre 6 y 32 caracteres"
+                    text="Ha de tenir entre 6 i 32 caràcters"
                   />
                   <PasswordItem
                     isValid={checks.upper}
-                    text="Al menos una letra mayúscula"
+                    text="Almenys una lletra majúscula"
                   />
                   <PasswordItem
                     isValid={checks.lower}
-                    text="Al menos una letra minúscula"
+                    text="Almenys una lletra minúscula"
                   />
                   <PasswordItem
                     isValid={checks.number}
-                    text="Al menos un número"
+                    text="Almenys un número"
                   />
                   <PasswordItem
                     isValid={checks.special}
-                    text="Al menos un caracter especial (!@#$%^&*()-+)"
+                    text="Almenys un caracter especial (!@#$%^&*()-+)"
                   />
                 </View>
               )}
@@ -435,7 +441,7 @@ export default function RegisterScreen() {
             {/* Input: Confirm Password */}
             <View className="space-y-2 mt-4">
               <Text className="font-medium text-gray-900">
-                Confirma tu contraseña
+                Confirma la teva contrasenya
               </Text>
               <View className="justify-center align-middle">
                 <TextInput
@@ -447,7 +453,9 @@ export default function RegisterScreen() {
                       setConfirmPasswordStarted(true);
 
                     if (text !== password) {
-                      setConfirmPasswordError("Las contraseñas no coinciden");
+                      setConfirmPasswordError(
+                        "Les contraseñes no coincideixen",
+                      );
                     } else {
                       setConfirmPasswordError("");
                     }
@@ -455,7 +463,7 @@ export default function RegisterScreen() {
                   onEndEditing={(e) =>
                     handleConfirmPasswordEndEditing(e.nativeEvent.text)
                   }
-                  placeholder="Repite tu contraseña"
+                  placeholder="Repeteix la teva contrasenya"
                   placeholderTextColor="#9CA3AF"
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
@@ -495,8 +503,8 @@ export default function RegisterScreen() {
             ) : null}
 
             <Text className="text-xs text-gray-500 pt-2 mt-2">
-              Al registrarte, aceptas nuestros Términos de Servicio y Política
-              de Privacidad
+              Al registrarte, acceptes els nostres Térmes de Servei i Política
+              de Privacitat
             </Text>
 
             {/* Botón de Registro */}
@@ -506,17 +514,17 @@ export default function RegisterScreen() {
               disabled={loading}
             >
               <Text className="text-white text-base font-semibold">
-                {loading ? "Creando cuenta..." : "Crear una cuenta"}
+                {loading ? "Creant compte..." : "Crear un compte"}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Enlace al Login */}
           <View className="mt-6 flex-row justify-center items-center pb-8">
-            <Text className="text-gray-500">¿Ya tienes una cuenta? </Text>
+            <Text className="text-gray-500">Ja tens un compte? </Text>
             <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
               <Text className="text-emerald-500 font-medium">
-                Iniciar sesión
+                Iniciar sessió
               </Text>
             </TouchableOpacity>
           </View>

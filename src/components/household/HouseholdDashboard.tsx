@@ -24,8 +24,8 @@ export default function HouseholdDashboard({
     if (household?.invite_code) {
       await Clipboard.setStringAsync(household.invite_code);
       Alert.alert(
-        "Código copiado",
-        `El código ${household.invite_code} se ha copiado.`,
+        "Codi copiat",
+        `El codi ${household.invite_code} se ha copiat.`,
       );
     }
   };
@@ -33,13 +33,13 @@ export default function HouseholdDashboard({
   const handleLeaveHousehold = () => {
     const isTransferringOwnership = isOwner && household.members.length > 1;
     const message = isTransferringOwnership
-      ? "¿Estás seguro? Al salir, la propiedad del hogar pasará al miembro más antiguo."
-      : "¿Estás seguro de que quieres salir de este hogar? Perderás el acceso al inventario.";
+      ? "Estàs segur? Al sortir, la propietat de la llar passara al membre més antic."
+      : "Estàs segur de que vols sortir de la llar? Perdràs l'accés a l'inventari.";
 
-    Alert.alert("Salir del hogar", message, [
+    Alert.alert("Sortir de la llar", message, [
       { text: "Cancelar", style: "cancel" },
       {
-        text: "Salir",
+        text: "Sortir",
         style: "destructive",
         onPress: async () => {
           setIsProcessing(true);
@@ -58,8 +58,8 @@ export default function HouseholdDashboard({
 
   const handleKickMember = (memberId: string, memberName: string) => {
     Alert.alert(
-      "Expulsar miembro",
-      `¿Estás seguro de que quieres expulsar a ${memberName}? Perderá acceso a todo el inventario.`,
+      "Expulsar membre",
+      `Estàs segur de que vols expulsar a ${memberName}? Perdrà l'accés a tot l'inventari.`,
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -84,7 +84,7 @@ export default function HouseholdDashboard({
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
       <View className="px-6 pt-6 pb-4 bg-white border-b border-gray-200 flex-row items-center justify-between">
-        <Text className="text-2xl font-bold text-gray-900">Mi Hogar</Text>
+        <Text className="text-2xl font-bold text-gray-900">La meva llar</Text>
       </View>
 
       <ScrollView
@@ -103,7 +103,7 @@ export default function HouseholdDashboard({
                 {household.name}
               </Text>
               <Text className="text-emerald-600 font-medium">
-                {household.members?.length || household.member_count} miembros
+                {household.members?.length || household.member_count} membres
               </Text>
             </View>
           </View>
@@ -112,7 +112,7 @@ export default function HouseholdDashboard({
             <View className="bg-white/90 rounded-2xl p-4 flex-row items-center justify-between border border-emerald-50">
               <View>
                 <Text className="text-xs text-gray-500 mb-1 font-medium">
-                  Código actual
+                  Codi actual
                 </Text>
                 <Text className="font-bold text-xl tracking-widest text-gray-900">
                   {household.invite_code}
@@ -129,7 +129,7 @@ export default function HouseholdDashboard({
           ) : (
             <View className="bg-white/90 rounded-2xl p-3 border border-emerald-50">
               <Text className="text-xs text-gray-500 text-center">
-                Pide al administrador el código para invitar a más gente.
+                Demana el codi a l&apos;administrador per convidar a més gent.
               </Text>
             </View>
           )}
@@ -138,7 +138,7 @@ export default function HouseholdDashboard({
         {/* Lista de Miembros */}
         <View className="mb-8">
           <Text className="text-lg font-bold text-gray-900 mb-4 px-1">
-            Miembros del hogar
+            Membres de la llar
           </Text>
           <View className="space-y-3 gap-3">
             {household.members?.map((member: any) => (
@@ -163,7 +163,7 @@ export default function HouseholdDashboard({
             <LogOut color="#EF4444" size={20} />
 
             <Text className="ml-2 font-bold text-red-600 text-base">
-              {isProcessing ? "Procesando..." : "Salir de este hogar"}
+              {isProcessing ? "Processant..." : "Sortir de la llar"}
             </Text>
           </TouchableOpacity>
         </View>

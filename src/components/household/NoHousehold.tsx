@@ -18,7 +18,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
 
   const handleCreateHome = async () => {
     if (homeName.trim().length < 2) {
-      Alert.alert("Error", "El nombre debe tener al menos 2 caracteres.");
+      Alert.alert("Error", "El nom ha de tenir almenys 2 caràcters.");
       return;
     }
     setIsSubmitting(true);
@@ -37,9 +37,9 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
     setIsSubmitting(true);
     try {
       await homeService.joinHome(inviteCode.trim().toUpperCase());
-      onSuccess(); // Recargamos datos en el padre
+      onSuccess();
     } catch (error: any) {
-      Alert.alert("Código incorrecto", error);
+      Alert.alert("Codi incorrecte", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -53,21 +53,21 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
         </View>
 
         <Text className="text-2xl font-bold text-gray-900 mb-3 text-center">
-          Gestiona tu hogar
+          Gestiona la teva llar
         </Text>
 
         {viewState === "menu" && (
           <>
             <Text className="text-gray-500 text-center mb-10 text-base px-4">
-              Únete a un hogar existente con un código o crea uno nuevo para
-              compartir tu inventario.
+              Uneix-te a una llar existent amb un codi o crea una nova per
+              compartir el teu inventari.
             </Text>
             <TouchableOpacity
               className="w-full bg-emerald-500 py-4 rounded-2xl active:bg-emerald-600 mb-4 shadow-sm"
               onPress={() => setViewState("joining")}
             >
               <Text className="text-white font-bold text-center text-lg">
-                Unirse con un código
+                Unirse amb un codi
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -75,7 +75,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
               onPress={() => setViewState("creating")}
             >
               <Text className="text-emerald-600 font-bold text-center text-lg">
-                Crear nuevo hogar
+                Crear nova llar
               </Text>
             </TouchableOpacity>
           </>
@@ -84,7 +84,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
         {viewState === "joining" && (
           <View className="w-full mt-2">
             <Text className="text-gray-700 font-semibold mb-4 text-center">
-              Introduce el código de invitación:
+              Introdueix el codi d&apos;invitació:
             </Text>
             <TextInput
               className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-4 text-xl mb-6 text-center tracking-widest uppercase font-bold text-gray-900 shadow-sm"
@@ -103,7 +103,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
               disabled={inviteCode.length === 0 || isSubmitting}
             >
               <Text className="text-white font-bold text-center text-lg">
-                {isSubmitting ? "Verificando..." : "Confirmar y entrar"}
+                {isSubmitting ? "Verificant..." : "Confirmar i entrar"}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -115,7 +115,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
               disabled={isSubmitting}
             >
               <Text className="text-gray-500 font-bold text-center text-lg">
-                Volver atrás
+                Tornar enrere
               </Text>
             </TouchableOpacity>
           </View>
@@ -124,7 +124,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
         {viewState === "creating" && (
           <View className="w-full mt-2">
             <Text className="text-gray-700 font-semibold mb-4 text-center">
-              ¿Cómo se llamará tu hogar?
+              Com s&apos;anomenarà la teva llar?
             </Text>
             <TextInput
               className="w-full bg-white border border-gray-200 rounded-2xl px-4 py-4 text-lg mb-6 text-center font-bold text-gray-900 shadow-sm"
@@ -141,7 +141,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
               disabled={homeName.length < 2 || isSubmitting}
             >
               <Text className="text-white font-bold text-center text-lg">
-                {isSubmitting ? "Creando..." : "Crear hogar"}
+                {isSubmitting ? "Creant..." : "Crear llar"}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -153,7 +153,7 @@ export default function NoHousehold({ onSuccess }: NoHouseholdProps) {
               disabled={isSubmitting}
             >
               <Text className="text-gray-500 font-bold text-center text-lg">
-                Volver atrás
+                Tornar enrere
               </Text>
             </TouchableOpacity>
           </View>

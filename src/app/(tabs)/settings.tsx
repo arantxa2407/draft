@@ -38,8 +38,8 @@ export default function SettingsScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [userData, setUserData] = useState({
-    name: "Cargando...",
-    email: "Cargando...",
+    name: "Carregant...",
+    email: "Carregant...",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e", // Avatar por defecto
   });
 
@@ -54,7 +54,7 @@ export default function SettingsScreen() {
             avatar: `https://ui-avatars.com/api/?name=${result.user.username}&background=10B981&color=fff&bold=true`,
           });
         } catch (error) {
-          console.error("Error al verificar sesión:", error);
+          console.error("Error al verificar sessió:", error);
           router.replace("/");
         }
       };
@@ -68,7 +68,7 @@ export default function SettingsScreen() {
     try {
       await authService.logout();
     } catch (error) {
-      console.error("Error al cerrar sesión en el servidor:", error);
+      console.error("Error al cerrar sessió en el servidor:", error);
     } finally {
       setIsLoading(false);
       setSession(null);
@@ -77,8 +77,8 @@ export default function SettingsScreen() {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      "Eliminar cuenta",
-      "¿Estás seguro? Se borrarán todos tus datos del inventario y hogares compartidos. Esta acción no se puede deshacer.",
+      "Eliminar compte",
+      "Estàs segur? S'esborraràn totes les teves dades de l'inventari i llars compartits. Aquesta acció no es pot desfer.",
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -94,7 +94,7 @@ export default function SettingsScreen() {
             } catch (error) {
               Alert.alert(
                 "Error",
-                "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+                "No s'ha pogut eliminar el compte. Intenta-ho de nou.",
               );
             } finally {
               setIsLoading(false);
@@ -110,7 +110,7 @@ export default function SettingsScreen() {
     <SafeAreaView className="flex-1 bg-[#F8FAF8]">
       {/* Cabecera */}
       <View className="px-6 pt-6 pb-4 bg-white border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900">Ajustes</Text>
+        <Text className="text-2xl font-bold text-gray-900">Configuració</Text>
       </View>
 
       {/* Contenido principal scrolleable */}
@@ -136,20 +136,20 @@ export default function SettingsScreen() {
 
         {/* Sección: Cuenta */}
         <View className="mb-6">
-          <Text className="font-semibold text-gray-900 mb-3 px-1">Cuenta</Text>
+          <Text className="font-semibold text-gray-900 mb-3 px-1">Compte</Text>
           <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <SettingsItem
               icon={<User color="#6B7280" size={20} />}
-              label="Información del perfil"
+              label="Informació del perfil"
             />
             <SettingsItem
               icon={<Shield color="#6B7280" size={20} />}
-              label="Privacidad y seguridad"
+              label="Privacitat i seguretat"
             />
             <SettingsItem
               icon={<Globe color="#6B7280" size={20} />}
-              label="Idioma"
-              value="Español"
+              label="Llengua"
+              value="Català"
               isLast
             />
           </View>
@@ -158,28 +158,28 @@ export default function SettingsScreen() {
         {/* Sección: Notificaciones */}
         <View className="mb-6">
           <Text className="font-semibold text-gray-900 mb-3 px-1">
-            Notificaciones
+            Notificacions
           </Text>
           <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <SettingsToggle
               icon={<Bell color="#6B7280" size={20} />}
-              label="Notificaciones Push"
-              description="Recibe avisos en este dispositivo"
+              label="Notificacions Push"
+              description="Rep avisos en aquest dispositiu"
               checked={notificationsEnabled}
               onCheckedChange={setNotificationsEnabled}
             />
             <SettingsToggle
               icon={<Bell color="#6B7280" size={20} />}
-              label="Alertas de caducidad"
-              description="Avisos antes de que los alimentos caduquen"
+              label="Alertes de caducitat"
+              description="Avisos abans de que els aliments caduquen"
               checked={expirationAlerts}
               onCheckedChange={setExpirationAlerts}
               disabled={!notificationsEnabled}
             />
             <SettingsToggle
               icon={<Bell color="#6B7280" size={20} />}
-              label="Alertas de bajo stock"
-              description="Avisos de productos que se agotan"
+              label="Alertes de baix stock"
+              description="Avisos de productes que s'agoten"
               checked={lowStockAlerts}
               onCheckedChange={setLowStockAlerts}
               disabled={!notificationsEnabled}
@@ -196,8 +196,8 @@ export default function SettingsScreen() {
           <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <SettingsToggle
               icon={<Moon color="#6B7280" size={20} />}
-              label="Modo oscuro"
-              description="Cambiar al tema oscuro"
+              label="Mode fosc"
+              description="Canviar al tema fosc"
               checked={darkMode}
               onCheckedChange={setDarkMode}
               isLast
@@ -208,22 +208,22 @@ export default function SettingsScreen() {
         {/* Sección: Aplicación */}
         <View className="mb-8">
           <Text className="font-semibold text-gray-900 mb-3 px-1">
-            Aplicación
+            Aplicació
           </Text>
           <View className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
             <SettingsItem
               icon={<Smartphone color="#6B7280" size={20} />}
-              label="Versión de la app"
+              label="Versió de l'app"
               value="1.0.0"
               hideChevron
             />
             <SettingsItem
               icon={<HelpCircle color="#6B7280" size={20} />}
-              label="Ayuda y soporte"
+              label="Ajuda i suport"
             />
             <SettingsItem
               icon={<FileText color="#6B7280" size={20} />}
-              label="Términos y privacidad"
+              label="Terms i privacitat"
               isLast
             />
           </View>
@@ -240,7 +240,7 @@ export default function SettingsScreen() {
           >
             <LogOut color="#ef4444" size={20} />
             <Text className="text-red-500 font-semibold text-base ml-2">
-              {isLoading ? "Cerrando sesión..." : "Cerrar sesión"}
+              {isLoading ? "Tancant sessió..." : "Tancar sessió"}
             </Text>
           </TouchableOpacity>
 
@@ -256,7 +256,7 @@ export default function SettingsScreen() {
           >
             <Trash2 color="#ef4444" size={20} />
             <Text className="text-red-500 font-semibold text-base ml-2">
-              {isLoading ? "Eliminando cuenta..." : "Eliminar cuenta"}
+              {isLoading ? "Eliminant compte..." : "Eliminar compte"}
             </Text>
           </TouchableOpacity>
         </View>

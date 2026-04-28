@@ -19,7 +19,7 @@ import {
 const expiringItems = [
   {
     id: "1",
-    name: "Organic Milk",
+    name: "Llet ecològica",
     brand: "Dairy",
     daysLeft: 2,
     image:
@@ -28,7 +28,7 @@ const expiringItems = [
   },
   {
     id: "2",
-    name: "Fresh Strawberries",
+    name: "Maduixes fresques",
     brand: "Fruits",
     daysLeft: 1,
     image:
@@ -61,9 +61,11 @@ export default function Dashboard() {
       {/* Header */}
       <View className="px-6 pt-14 pb-4 flex-row justify-between items-center">
         <View>
-          <Text className="text-2xl font-bold text-gray-900">Mi nevera</Text>
+          <Text className="text-2xl font-bold text-gray-900">
+            La meva nevera
+          </Text>
           <Text className="text-sm text-gray-500 font-medium">
-            {today.toLocaleDateString("es-ES", {
+            {today.toLocaleDateString("ca-ES", {
               weekday: "long",
               month: "long",
               day: "numeric",
@@ -78,19 +80,19 @@ export default function Dashboard() {
           <View className="flex-1 p-4 rounded-3xl bg-emerald-50 border border-emerald-100">
             <Text className="text-2xl font-bold text-emerald-700">24</Text>
             <Text className="text-xs text-emerald-600 font-medium mt-1">
-              Totales
+              Totals
             </Text>
           </View>
           <View className="flex-1 p-4 rounded-3xl bg-amber-50 border border-amber-100">
             <Text className="text-2xl font-bold text-amber-700">3</Text>
             <Text className="text-xs text-amber-600 font-medium mt-1">
-              Venciendo
+              Vençuts
             </Text>
           </View>
           <View className="flex-1 p-4 rounded-3xl bg-gray-50 border border-gray-100">
             <Text className="text-2xl font-bold text-gray-700">21</Text>
             <Text className="text-xs text-gray-500 font-medium mt-1">
-              Fresco
+              Frescs
             </Text>
           </View>
         </View>
@@ -100,7 +102,7 @@ export default function Dashboard() {
           <TouchableOpacity className="flex-1 bg-emerald-500 p-4 rounded-3xl items-center">
             <Camera size={24} color="white" />
             <Text className="text-white text-[10px] font-bold mt-2 text-center">
-              Ticket
+              Tiquet
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -109,7 +111,7 @@ export default function Dashboard() {
           >
             <ScanBarcode size={24} color="#10B981" />
             <Text className="text-gray-900 text-[10px] font-bold mt-2 text-center">
-              Barras
+              Codi de barres
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -129,11 +131,11 @@ export default function Dashboard() {
             <View className="flex-row items-center gap-2">
               <AlertCircle size={20} color="#F59E0B" />
               <Text className="text-lg font-bold text-gray-900">
-                Vencen pronto
+                Caduquen aviat
               </Text>
             </View>
             <TouchableOpacity>
-              <Text className="text-emerald-600 font-bold">Ver todo</Text>
+              <Text className="text-emerald-600 font-bold">Veure-ho tot</Text>
             </TouchableOpacity>
           </View>
 
@@ -154,8 +156,8 @@ export default function Dashboard() {
                 <Text
                   className={`text-xs font-bold ${item.daysLeft === 1 ? "text-red-600" : "text-amber-600"}`}
                 >
-                  Queda{item.daysLeft > 1 ? "n" : ""} {item.daysLeft} día
-                  {item.daysLeft > 1 ? "s" : ""}
+                  Qued{item.daysLeft > 1 ? "en" : "a"} {item.daysLeft} di
+                  {item.daysLeft > 1 ? "es" : "a"}
                 </Text>
               </View>
               <ChevronRight size={20} color="#9CA3AF" />
