@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import {
   ArrowLeft,
   CheckSquare,
@@ -7,7 +7,7 @@ import {
   Square,
   Unlock,
 } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -26,15 +26,17 @@ import { useAuth } from "../../../context/AuthContext";
 import { inventoryService } from "../../../services/inventoryService";
 
 export default function AddManualProductScreen() {
+  const { prefill } = useLocalSearchParams();
   const { session } = useAuth();
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("1");
-  const [purchaseDate, setPurchaseDate] = useState<Date | null>(null);
+  const [purchaseDate, setPurchaseDate] = useState<Date | null>(new Date());
   const [expirationDate, setExpirationDate] = useState<Date | null>(null);
-
   const [isPrivate, setIsPrivate] = useState(false);
+  const [barcode, setBarcode] = useState<string | null>(null);
+
   const [isBoughtToday, setIsBoughtToday] = useState(false);
 
   const [categories, setCategories] = useState<
@@ -49,35 +51,26 @@ export default function AddManualProductScreen() {
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const today = new Date();
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(today.getDate() - 7);
+  useEffect(() => {
+    if (prefill) {
+      try {
+        const data = JSON.parse(prefill as string);
+        setName(data.nom || "");
+        setPrice(data.price || "");
+        setQuantity(data.quantity || "1");
+        if (data.barcode) setBarcode(data.barcode);
 
-  const toggleBoughtToday = () => {
-    const newValue = !isBoughtToday;
-    setIsBoughtToday(newValue);
-    if (newValue) {
-      setPurchaseDate(new Date());
+        if (data.categoria && categories.length > 0) {
+          const match = categories.find(
+            (c) => c.value === data.categoria || c.label === data.categoria,
+          );
+          if (match) setSelectedCategory(match);
+        }
+      } catch (e) {
+        console.warn("Error al parsear el prefill", e);
+      }
     }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      loadCategories();
-    }, []),
-  );
-
-  const loadCategories = async () => {
-  try {
-    const data = await inventoryService.getCategories();
-    setCategories(data);
-  } catch (error: any) {
-    Alert.alert("Error", error);
-    setCategories([]);
-  } finally {
-    setIsLoadingCategories(false);
-  }
-};
+  }, [prefill, categories]);
 
   const handleSubmit = async () => {
     if (
@@ -109,29 +102,68 @@ export default function AddManualProductScreen() {
 
     setIsSubmitting(true);
     try {
-      const roundedPrice = Math.round(parsedPrice * 100) / 100;
-
-      await inventoryService.createManualProduct({
+      const commonData = {
         nom: name.trim(),
-        categoria: selectedCategory.value,
-        preu: roundedPrice,
-        quantitat: parsedQuantity,
-        data_compra: purchaseDate
-          ? purchaseDate.toISOString().split("T")[0]
-          : undefined,
-        data_caducitat: expirationDate
-          ? expirationDate.toISOString().split("T")[0]
-          : undefined,
+        categoria: selectedCategory?.value,
+        preu: parseFloat(price.replace(",", ".")),
+        quantitat: parseInt(quantity, 10),
+        data_compra: purchaseDate?.toISOString().split("T")[0],
+        data_caducitat: expirationDate?.toISOString().split("T")[0],
         id_propietaris_privats: isPrivate && session?.id ? [session.id] : [],
-      });
+      };
 
-      Alert.alert("¡Éxito!", "Producto añadido correctamente.", [
-        { text: "OK", onPress: () => router.replace("/(tabs)/dashboard") },
+      if (barcode) {
+        await inventoryService.confirmBarcodeProduct({
+          barcode,
+          ...commonData,
+        });
+      } else {
+        await inventoryService.createManualProduct({
+          ...commonData,
+          nom: commonData.nom!,
+          categoria: commonData.categoria!,
+          preu: commonData.preu!,
+          quantitat: commonData.quantitat!,
+        });
+      }
+
+      Alert.alert("¡Èxit!", "Producte guardat.", [
+        { text: "OK", onPress: () => router.replace("/(tabs)/inventory") },
       ]);
     } catch (error: any) {
-      Alert.alert("Error al guardar", error);
+      Alert.alert("Error", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const today = new Date();
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(today.getDate() - 7);
+
+  const toggleBoughtToday = () => {
+    const newValue = !isBoughtToday;
+    setIsBoughtToday(newValue);
+    if (newValue) {
+      setPurchaseDate(new Date());
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCategories();
+    }, []),
+  );
+
+  const loadCategories = async () => {
+    try {
+      const data = await inventoryService.getCategories();
+      setCategories(data);
+    } catch (error: any) {
+      Alert.alert("Error", error);
+      setCategories([]);
+    } finally {
+      setIsLoadingCategories(false);
     }
   };
 

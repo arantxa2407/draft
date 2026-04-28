@@ -155,4 +155,29 @@ export const inventoryService = {
       throw error.response?.data?.detail || "No se pudo eliminar el producto";
     }
   },
+
+  lookupBarcode: async (barcode: string) => {
+    try {
+      const response = await apiClient.get(`/inventory/barcode/${barcode}`);
+      return response.data;
+    } catch (error: any) {
+      throw (
+        error.response?.data?.error || "Error al buscar el código de barras"
+      );
+    }
+  },
+
+  confirmBarcodeProduct: async (productData: any) => {
+    try {
+      const response = await apiClient.post(
+        "/inventory/barcode/confirm",
+        productData,
+      );
+      return response.data;
+    } catch (error: any) {
+      throw (
+        error.response?.data?.error || "Error al guardar el producto escaneado"
+      );
+    }
+  },
 };

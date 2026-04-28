@@ -121,7 +121,10 @@ export default function Dashboard() {
               Ticket
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity className="flex-1 bg-gray-100 p-4 rounded-3xl items-center">
+          <TouchableOpacity
+            className="flex-1 bg-gray-100 p-4 rounded-3xl items-center"
+            onPress={() => router.push("/products/scanBarcode")}
+          >
             <ScanBarcode size={24} color="#10B981" />
             <Text className="text-gray-900 text-[10px] font-bold mt-2 text-center">
               Barras
