@@ -19,8 +19,8 @@ import React, {
 } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
+  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -277,23 +277,13 @@ export default function InventoryScreen() {
   };
 
   const handleProductPress = (product: InventoryProduct) => {
-    if (isProductAccessible(product)) {
-      router.push({
-        pathname: "/product/[id]",
-        params: { id: product.id_producte },
-      });
-      return;
-    }
-
-    const owners =
-      product.propietaris.length > 0
-        ? product.propietaris.map((owner) => owner.nom).join(", ")
-        : "altre usuari";
-
-    Alert.alert(
-      "Producte privat",
-      `No pots accedir a aquest producte perquè és privat. Pertany a: ${owners}.`,
-    );
+    router.push({
+      pathname: "/product/[id]",
+      params: {
+        id: product.id_producte,
+        isOwner: isProductAccessible(product) ? "1" : "0",
+      },
+    });
   };
 
   const renderPrivateInfo = (product: InventoryProduct) => {
@@ -321,6 +311,18 @@ export default function InventoryScreen() {
     };
   };
 
+  const getNutriscoreStyle = (score?: string | null) => {
+    if (!score) return null;
+    const map: Record<string, { bg: string; text: string }> = {
+      A: { bg: "#1E8E3E", text: "#FFFFFF" },
+      B: { bg: "#85BB2F", text: "#FFFFFF" },
+      C: { bg: "#FECB02", text: "#333333" },
+      D: { bg: "#EE8100", text: "#FFFFFF" },
+      E: { bg: "#E63312", text: "#FFFFFF" },
+    };
+    return map[score.toUpperCase()] ?? null;
+  };
+
   const renderItem = ({ item }: { item: InventoryProduct }) => {
     const privacy = renderPrivateInfo(item);
 
@@ -338,8 +340,16 @@ export default function InventoryScreen() {
         }}
       >
         <View className="flex-row items-start">
-          <View className="w-12 h-12 rounded-[16px] bg-emerald-50 items-center justify-center mr-3">
-            <Package color="#10B981" size={20} />
+          <View className="w-12 h-12 rounded-[16px] bg-emerald-50 items-center justify-center mr-3 overflow-hidden">
+            {item.imatge_url ? (
+              <Image
+                source={{ uri: item.imatge_url }}
+                style={{ width: 48, height: 48 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <Package color="#10B981" size={20} />
+            )}
           </View>
 
           <View className="flex-1">
@@ -364,6 +374,23 @@ export default function InventoryScreen() {
                   Quantitat: {item.quantitat}
                 </Text>
               </View>
+
+              {(() => {
+                const nsStyle = getNutriscoreStyle(item.nutriscore);
+                return nsStyle ? (
+                  <View
+                    className="rounded-full px-2 py-0.5 mr-2 mb-1.5"
+                    style={{ backgroundColor: nsStyle.bg }}
+                  >
+                    <Text
+                      className="text-[12px] font-bold"
+                      style={{ color: nsStyle.text }}
+                    >
+                      {item.nutriscore!.toUpperCase()}
+                    </Text>
+                  </View>
+                ) : null;
+              })()}
             </View>
 
             {item.data_caducitat ? (

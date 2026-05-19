@@ -23,6 +23,8 @@ export type InventoryProduct = {
   data_caducitat?: string | null;
   es_privat: boolean;
   propietaris: InventoryOwner[];
+  nutriscore?: string | null;
+  imatge_url?: string | null;
 };
 
 export type InventoryCategoryOption = {

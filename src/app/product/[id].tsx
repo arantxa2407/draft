@@ -24,7 +24,8 @@ import {
 } from "../../services/inventoryService";
 
 export default function ProductDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, isOwner: isOwnerParam } = useLocalSearchParams<{ id: string; isOwner?: string }>();
+  const canEdit = isOwnerParam !== "0";
 
   const [product, setProduct] = useState<InventoryProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -280,80 +281,91 @@ export default function ProductDetailScreen() {
               </View>
             </View>
 
-            <View className="mt-3 pt-3 border-t border-gray-100">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-[14px] font-semibold text-gray-900">
-                  Modificar cantidad
-                </Text>
+            {canEdit ? (
+              <View className="mt-3 pt-3 border-t border-gray-100">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-[14px] font-semibold text-gray-900">
+                    Modificar cantidad
+                  </Text>
 
-                <View className="flex-row items-center">
-                  <TouchableOpacity
-                    className="w-9 h-9 rounded-lg items-center justify-center bg-gray-100"
-                    onPress={() => handleUpdateQuantity(-1)}
-                    onPressIn={() => startContinuousUpdate(-1)}
-                    onPressOut={stopContinuousUpdate}
-                    disabled={
-                      updatingQuantity ||
-                      deletingProduct ||
-                      (product.quantitat_stock ?? 0) <= 0
-                    }
-                  >
-                    {updatingQuantity ? (
-                      <ActivityIndicator size="small" color="#6B7280" />
-                    ) : (
-                      <Text className="text-[20px] font-bold text-gray-700">
-                        -
+                  <View className="flex-row items-center">
+                    <TouchableOpacity
+                      className="w-9 h-9 rounded-lg items-center justify-center bg-gray-100"
+                      onPress={() => handleUpdateQuantity(-1)}
+                      onPressIn={() => startContinuousUpdate(-1)}
+                      onPressOut={stopContinuousUpdate}
+                      disabled={
+                        updatingQuantity ||
+                        deletingProduct ||
+                        (product.quantitat_stock ?? 0) <= 0
+                      }
+                    >
+                      {updatingQuantity ? (
+                        <ActivityIndicator size="small" color="#6B7280" />
+                      ) : (
+                        <Text className="text-[20px] font-bold text-gray-700">
+                          -
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+
+                    <View className="mx-3 min-w-[20px] items-center">
+                      <Text className="text-[18px] font-bold text-gray-900">
+                        {product.quantitat_stock}
                       </Text>
-                    )}
-                  </TouchableOpacity>
+                    </View>
 
-                  <View className="mx-3 min-w-[20px] items-center">
-                    <Text className="text-[18px] font-bold text-gray-900">
-                      {product.quantitat_stock}
-                    </Text>
+                    <TouchableOpacity
+                      className={`w-9 h-9 rounded-lg items-center justify-center ${
+                        updatingQuantity || deletingProduct
+                          ? "bg-emerald-300"
+                          : "bg-emerald-500"
+                      }`}
+                      onPress={() => handleUpdateQuantity(1)}
+                      onPressIn={() => startContinuousUpdate(1)}
+                      onPressOut={stopContinuousUpdate}
+                      disabled={updatingQuantity || deletingProduct}
+                    >
+                      {updatingQuantity ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text className="text-[20px] font-bold text-white">
+                          +
+                        </Text>
+                      )}
+                    </TouchableOpacity>
                   </View>
+                </View>
 
-                  <TouchableOpacity
-                    className={`w-9 h-9 rounded-lg items-center justify-center ${
-                      updatingQuantity || deletingProduct
-                        ? "bg-emerald-300"
-                        : "bg-emerald-500"
-                    }`}
-                    onPress={() => handleUpdateQuantity(1)}
-                    onPressIn={() => startContinuousUpdate(1)}
-                    onPressOut={stopContinuousUpdate}
-                    disabled={updatingQuantity || deletingProduct}
-                  >
-                    {updatingQuantity ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text className="text-[20px] font-bold text-white">
-                        +
+                <TouchableOpacity
+                  className={`mt-3 h-10 rounded-lg flex-row items-center justify-center ${
+                    deletingProduct ? "bg-red-400" : "bg-red-500"
+                  }`}
+                  onPress={handleDeleteProduct}
+                  disabled={deletingProduct || updatingQuantity}
+                >
+                  {deletingProduct ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <>
+                      <Trash2 color="#FFFFFF" size={16} />
+                      <Text className="text-white font-bold text-sm ml-2">
+                        Eliminar producto
                       </Text>
-                    )}
-                  </TouchableOpacity>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="mt-3 pt-3 border-t border-gray-100">
+                <View className="flex-row items-center bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <ShieldCheck color="#D97706" size={18} />
+                  <Text className="ml-2 text-sm text-amber-700 flex-1">
+                    Producte privat. Només el propietari pot modificar-lo.
+                  </Text>
                 </View>
               </View>
-
-              <TouchableOpacity
-                className={`mt-3 h-10 rounded-lg flex-row items-center justify-center ${
-                  deletingProduct ? "bg-red-400" : "bg-red-500"
-                }`}
-                onPress={handleDeleteProduct}
-                disabled={deletingProduct || updatingQuantity}
-              >
-                {deletingProduct ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Trash2 color="#FFFFFF" size={16} />
-                    <Text className="text-white font-bold text-sm ml-2">
-                      Eliminar producto
-                    </Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
 
           <View className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm mb-6">
