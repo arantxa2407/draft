@@ -74,25 +74,40 @@ export const authService = {
     }
   },
 
-  refresh: async () => {
+  requestPasswordReset: async (email: string) => {
     try {
-      const refreshToken = await getToken("refresh_token");
-      if (!refreshToken) throw new Error("No hay refresh token");
+      const response = await apiClient.post("/auth/forgot-password", { email });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data?.detail || "Error en processar la sol·licitud";
+    }
+  },
 
-      const response = await apiClient.post("/auth/refresh", {
-        refresh_token: refreshToken,
+  resetPassword: async (token: string, newPass: string) => {
+    try {
+      const response = await apiClient.post("/auth/reset-password", {
+        token: token,
+        new_password: newPass,
       });
+      return response.data;
+    } catch (error: any) {
+      throw (
+        error.response?.data?.detail || "No s'ha pogut restablir la contrasenya"
+      );
+    }
+  },
 
-      const { access_token, refresh_token: newRefreshToken } = response.data;
-
-      await setToken("access_token", access_token);
-      await setToken("refresh_token", newRefreshToken);
-
-      return access_token;
-    } catch (error) {
-      await deleteToken("access_token");
-      await deleteToken("refresh_token");
-      throw error;
+  changePassword: async (currentPass: string, newPass: string) => {
+    try {
+      const response = await apiClient.post("/auth/change-password", {
+        current_password: currentPass,
+        new_password: newPass,
+      });
+      return response.data;
+    } catch (error: any) {
+      throw (
+        error.response?.data?.detail || "La contrasenya actual és incorrecta"
+      );
     }
   },
 

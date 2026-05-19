@@ -80,7 +80,7 @@ export default function BarcodeSummaryScreen() {
       await inventoryService.confirmBarcodeProduct({
         barcode: barcode as string,
         nom: product?.nom,
-        categoria: product?.categoria,
+        categoria_label: product?.categoria_label,
         quantitat: parseInt(quantity, 10),
         preu: price ? parseFloat(price.replace(",", ".")) : undefined,
         data_compra: purchaseDate?.toISOString().split("T")[0],
@@ -178,7 +178,7 @@ export default function BarcodeSummaryScreen() {
                 Categoria
               </Text>
               <Text className="text-lg font-medium text-emerald-600">
-                {product?.categoria || "Sense categoria"}
+                {product?.categoria_label || "Sense categoria"}
               </Text>
             </View>
           </View>

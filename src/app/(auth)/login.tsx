@@ -153,7 +153,10 @@ export default function LoginScreen() {
               <View className="flex-row justify-between items-center">
                 <Text className="font-medium text-gray-900">Contrasenya</Text>
                 <TouchableOpacity>
-                  <Text className="text-sm font-medium text-emerald-500">
+                  <Text
+                    className="text-sm font-medium text-emerald-500"
+                    onPress={() => router.push("/(auth)/forgotPassword")}
+                  >
                     Has oblidat la contrasenya?
                   </Text>
                 </TouchableOpacity>

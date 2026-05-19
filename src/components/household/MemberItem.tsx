@@ -32,9 +32,13 @@ export default function MemberItem({
               {member.username}
             </Text>
             {isMemberOwner && <Crown color="#F59E0B" size={16} />}
+            {isCurrentUser && (
+              <Text className="text-xs text-gray-500 ml-1">(Tu)</Text>
+            )}
           </View>
           <Text className="text-xs text-gray-400 mt-0.5">
-            Se unió el {new Date(member.joined_at).toLocaleDateString()}
+            S&apos;ha afegit el{" "}
+            {new Date(member.joined_at).toLocaleDateString()}
           </Text>
         </View>
       </View>

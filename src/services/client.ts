@@ -38,7 +38,9 @@ export const clearStoredSession = async () => {
 };
 
 const apiClient = axios.create({
-  baseURL: "http://192.168.0.154:8000",
+  baseURL: "http://172.20.10.3:8000",
+
+  // baseURL: "http://192.168.0.154:8000",
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",
@@ -86,7 +88,6 @@ apiClient.interceptors.response.use(
         if (onUnauthorized) {
           onUnauthorized();
         }
-        return Promise.reject("Sesión caducada. Inicia sesión de nuevo.");
       }
     }
 
@@ -96,8 +97,6 @@ apiClient.interceptors.response.use(
       if (onUnauthorized) {
         onUnauthorized();
       }
-
-      return Promise.reject("Sesión caducada. Inicia sesión de nuevo.");
     }
 
     if (error.code === "ECONNABORTED" || error.message?.includes("timeout")) {
